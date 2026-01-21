@@ -70,48 +70,6 @@ export class NavigationService {
             path: '/news/industry',
             order: 2,
             parentId: 'news'
-          },
-          {
-            id: 'news-company',
-            displayName: '公司動態',
-            path: '/news/company',
-            order: 0,
-            parentId: 'news'
-          },
-          {
-            id: 'news-product',
-            displayName: '產品資訊',
-            path: '/news/product',
-            order: 1,
-            parentId: 'news'
-          },
-          {
-            id: 'news-industry',
-            displayName: '行業新聞',
-            path: '/news/industry',
-            order: 2,
-            parentId: 'news'
-          },
-          {
-            id: 'news-company',
-            displayName: '公司動態',
-            path: '/news/company',
-            order: 0,
-            parentId: 'news'
-          },
-          {
-            id: 'news-product',
-            displayName: '產品資訊',
-            path: '/news/product',
-            order: 1,
-            parentId: 'news'
-          },
-          {
-            id: 'news-industry',
-            displayName: '行業新聞',
-            path: '/news/industry',
-            order: 2,
-            parentId: 'news'
           }
         ]
       },
@@ -120,6 +78,12 @@ export class NavigationService {
         displayName: '聯絡我們',
         path: '/contact',
         order: 3
+      },
+      {
+        id: 'metrics',
+        displayName: 'Metrics Dashboard',
+        path: '/metrics',
+        order: 4
       }
     ];
   }

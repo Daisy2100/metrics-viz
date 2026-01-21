@@ -1,0 +1,92 @@
+[
+  {
+    "dataset": "eval15",
+    "filename": "enhanced_1.png",
+    "image_name": "1",
+    "model": "PWGCM",
+    "image_path": "assets/data/pwgcm/enhanced_1.png",
+    "metrics": {
+      "niqe": 6.4275264996655626,
+      "brisque": 12.85028076171875,
+      "delta_e76_vs_original": {
+        "mean": 31.717554092407227,
+        "std": 12.812792778015137,
+        "max": 54.68046951293945
+      },
+      "ciede2000_vs_original": {
+        "mean": 25.30742073059082,
+        "std": 12.701189994812012,
+        "max": 48.7603874206543
+      },
+      "angular_error_vs_original": {
+        "mean": 14.455796241760254,
+        "std": 2.69179630279541,
+        "max": 23.3740234375
+      },
+      "loe": 355.9735,
+      "psnr": 16.08953857421875,
+      "ssim": 0.8147164058401355,
+      "lpips": 0.2338435798883438,
+      "delta_e76_vs_reference": {
+        "mean": 19.493736267089844,
+        "std": 6.41349983215332,
+        "max": 51.009674072265625
+      },
+      "ciede2000_vs_reference": {
+        "mean": 13.492127418518066,
+        "std": 3.865006685256958,
+        "max": 39.94528579711914
+      },
+      "angular_error_vs_reference": {
+        "mean": 7.671101093292236,
+        "std": 2.038924217224121,
+        "max": 16.83339500427246
+      }
+    }
+  },
+  {
+    "dataset": "eval15",
+    "filename": "enhanced_1.png",
+    "image_name": "1",
+    "model": "HSV_Improve",
+    "image_path": "assets/data/hsv/enhanced_1.png",
+    "metrics": {
+      "niqe": 6.8901847973123145,
+      "brisque": 12.12225341796875,
+      "delta_e76_vs_original": {
+        "mean": 24.486793518066406,
+        "std": 8.608723640441895,
+        "max": 49.41823196411133
+      },
+      "ciede2000_vs_original": {
+        "mean": 17.6932373046875,
+        "std": 5.873569965362549,
+        "max": 30.287429809570312
+      },
+      "angular_error_vs_original": {
+        "mean": 16.978090286254883,
+        "std": 4.557952404022217,
+        "max": 26.877880096435547
+      },
+      "loe": 341.5731,
+      "psnr": 11.682957649230957,
+      "ssim": 0.6953182176933342,
+      "lpips": 0.23613440990447998,
+      "delta_e76_vs_reference": {
+        "mean": 26.319931030273438,
+        "std": 10.912989616394043,
+        "max": 57.87005615234375
+      },
+      "ciede2000_vs_reference": {
+        "mean": 20.273950576782227,
+        "std": 8.369243621826172,
+        "max": 44.964412689208984
+      },
+      "angular_error_vs_reference": {
+        "mean": 8.278660774230957,
+        "std": 2.8582403659820557,
+        "max": 15.064299583435059
+      }
+    }
+  }
+]

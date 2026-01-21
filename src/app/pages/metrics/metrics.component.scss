@@ -1,0 +1,98 @@
+@use '../../../assets/scss/_variables' as *;
+
+.metrics-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.metrics-header {
+  margin-bottom: 2rem;
+  text-align: center;
+
+  .metrics-title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $color-primary-500;
+    margin-bottom: 0.5rem;
+  }
+
+  .metrics-subtitle {
+    font-size: $font-size-lg;
+    color: $color-gray-600;
+  }
+}
+
+.metrics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  ::ng-deep .metrics-card {
+    .p-card-header {
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+      color: $color-primary-600;
+      background-color: $color-gray-50;
+      padding: 1rem 1.5rem;
+    }
+
+    .p-card-body {
+      padding: 0;
+    }
+
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background-color: $color-primary-50;
+        color: $color-primary-700;
+        font-weight: $font-weight-semibold;
+        padding: 1rem;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 0.875rem 1rem;
+      }
+
+      .p-datatable-tbody > tr:nth-child(even) {
+        background-color: $color-gray-50;
+      }
+    }
+  }
+}
+
+.metrics-loading,
+.metrics-empty {
+  text-align: center;
+  padding: 3rem;
+  font-size: $font-size-lg;
+  color: $color-gray-600;
+}
+
+@media (max-width: 768px) {
+  .metrics-container {
+    padding: 1rem;
+  }
+
+  .metrics-header {
+    .metrics-title {
+      font-size: $font-size-2xl;
+    }
+
+    .metrics-subtitle {
+      font-size: $font-size-base;
+    }
+  }
+
+  .metrics-content {
+    ::ng-deep .metrics-card {
+      .p-datatable {
+        font-size: $font-size-sm;
+
+        .p-datatable-thead > tr > th,
+        .p-datatable-tbody > tr > td {
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+}

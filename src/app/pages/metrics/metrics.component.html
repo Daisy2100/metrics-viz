@@ -1,0 +1,173 @@
+<div class="metrics-container">
+  <div class="metrics-header">
+    <h1 class="metrics-title">Image Quality Metrics Dashboard</h1>
+    <p class="metrics-subtitle">Comparison of PWGCM vs HSV_Improve models on eval15 dataset</p>
+  </div>
+
+  <div class="metrics-content" *ngIf="!loading && metrics.length > 0">
+    <p-card header="Model Comparison Overview" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Dataset</th>
+            <th>Image Name</th>
+            <th>NIQE</th>
+            <th>BRISQUE</th>
+            <th>LOE</th>
+            <th>PSNR</th>
+            <th>SSIM</th>
+            <th>LPIPS</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.dataset }}</td>
+            <td>{{ metric.image_name }}</td>
+            <td>{{ metric.metrics.niqe | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.brisque | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.loe | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.psnr | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.ssim | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.lpips | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="Delta E76 vs Original" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_original.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_original.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_original.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="CIEDE2000 vs Original" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_original.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_original.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_original.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="Angular Error vs Original" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.angular_error_vs_original.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.angular_error_vs_original.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.angular_error_vs_original.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="Delta E76 vs Reference" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_reference.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_reference.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.delta_e76_vs_reference.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="CIEDE2000 vs Reference" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_reference.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.ciede2000_vs_reference.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <p-card header="Angular Error vs Reference" styleClass="metrics-card">
+      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Model</th>
+            <th>Mean</th>
+            <th>Std</th>
+            <th>Max</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-metric>
+          <tr>
+            <td>{{ metric.model }}</td>
+            <td>{{ metric.metrics.angular_error_vs_reference.mean | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.angular_error_vs_reference.std | number:'1.4-4' }}</td>
+            <td>{{ metric.metrics.angular_error_vs_reference.max | number:'1.4-4' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+
+  <div class="metrics-loading" *ngIf="loading">
+    <p>Loading metrics data...</p>
+  </div>
+
+  <div class="metrics-empty" *ngIf="!loading && metrics.length === 0">
+    <p>No metrics data available.</p>
+  </div>
+</div>

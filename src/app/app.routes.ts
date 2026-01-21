@@ -6,6 +6,7 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { NewsCompanyComponent } from './pages/news/news-company/news-company.component';
 import { NewsProductComponent } from './pages/news/news-product/news-product.component';
 import { NewsIndustryComponent } from './pages/news/news-industry/news-industry.component';
+import { MetricsComponent } from './pages/metrics/metrics.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -20,4 +21,5 @@ export const routes: Routes = [
         ]
     },
     { path: 'contact', component: ContactComponent },
+    { path: 'metrics', component: MetricsComponent },
 ];
