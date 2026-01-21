@@ -1,88 +1,138 @@
-# Metrics Visualization Dashboard - Angular 19 專案
+# Image Quality Metrics Visualization Dashboard
 
-一個使用 Angular 19 和 PrimeNG 19 建構的現代響應式圖像品質指標視覺化儀表板，具備完整的導航系統和模組化架構。
+圖像品質指標視覺化儀表板，用於比較 PWGCM (Baseline) 與 HSV_Improve 模型在 eval15 數據集上的表現。
 
-## 🚀 技術規格
+## 使用方式
 
-- **Angular**: 19.2.0
-- **PrimeNG**: 19.1.3
-- **Chart.js**: 4.5.1 (用於圖表視覺化)
-- **TypeScript**: 5.7.2
-- **SCSS**: 支援現代化樣式架構
-- **SSR**: 支援伺服器端渲染 (Angular Universal)
-
-## 📋 功能特色
-
-### 📊 圖像品質指標儀表板
-- ✅ **多模型比較**: 支援 PWGCM (Baseline) 與 HSV_Improve 模型比較
-- ✅ **圖表視覺化**: 使用柱狀圖展示 PSNR, SSIM, NIQE, BRISQUE 等指標
-- ✅ **詳細數據表格**: 顯示完整的指標數據，包含統計資訊 (mean, std, max)
-- ✅ **視圖切換功能**: 
-  - **Table Only**: 僅顯示數據表格
-  - **Chart Only**: 僅顯示圖表
-  - **Both**: 同時顯示圖表和表格
-- ✅ **支援的指標類型**:
-  - 圖像品質指標: NIQE, BRISQUE, LOE, PSNR, SSIM, LPIPS
-  - 色彩差異指標: Delta E76, CIEDE2000, Angular Error
-  - 比較基準: vs Original, vs Reference
-
-### 🎨 UI/UX 設計
-- ✅ 響應式設計，支援桌面版和行動版
-- ✅ 現代化的樣式系統，使用 SCSS 變數管理
-- ✅ PrimeNG 元件庫整合
-- ✅ 自訂字型和顏色主題系統
-
-### 🧭 導航系統
-- ✅ 動態導航元件，支援自訂 Logo
-- ✅ 響應式側邊欄 (行動版)
-- ✅ 載入狀態指示器
-- ✅ 活動路由狀態顯示
-- ✅ 可配置的選單項目
-
-### 📄 頁面結構
-- ✅ 首頁 (Home)
-- ✅ 關於 (About)
-- ✅ 新聞 (News)
-- ✅ 聯絡 (Contact)
-- ✅ **指標儀表板 (Metrics Dashboard)** - 新增功能
-
-### 🏗️ 架構特點
-- ✅ 獨立元件 (Standalone Components)
-- ✅ 模組化服務架構
-- ✅ TypeScript 嚴格模式
-- ✅ 現代化路由配置
-
-## 🛠️ 開發環境設置
-
-### 系統需求
-- Node.js 18.18.0 或更高版本
-- npm 或 yarn 套件管理器
-- Angular CLI 19.2.15
-
-### 安裝專案
-
+1. 啟動開發伺服器：
 ```bash
-# 克隆專案
-git clone <repository-url>
-cd template-angular
-
-# 安裝相依套件
 npm install
-```
-
-## 🚦 開發指令
-
-### 啟動開發伺服器
-
-```bash
 npm start
-# 或
-ng serve
 ```
 
-專案將在 `http://localhost:4200/` 啟動，並支援熱重載功能。
+2. 訪問 `http://localhost:4200/metrics` 查看指標儀表板
 
-### 建構專案
+## 功能特色
+
+- **雷達圖**: 整體能力比較，8 軸雷達圖顯示所有關鍵指標
+- **12 個柱狀圖**: 所有指標的詳細比較
+- **7 個數據表格**: 完整的統計資訊 (mean, std, max)
+- **視圖切換**: Table Only / Chart Only / Both
+- **圖表匯出**: 一鍵匯出所有圖表為 PNG 檔案
+
+## 指標說明
+
+### 🟢 越大越好 (Higher is Better)
+
+這些指標的數值越高，代表品質越好、失真越少。
+
+#### PSNR (Peak Signal-to-Noise Ratio) - 峰值訊噪比
+- **用途**: 衡量重建圖像與原始圖像之間的差異
+- **範圍**: 通常 20-50 dB
+- **好的值**: 
+  - \> 40 dB: 非常好，幾乎無法察覺差異
+  - 30-40 dB: 好，差異很小
+  - 20-30 dB: 可接受，有明顯差異
+  - < 20 dB: 差，差異顯著
+
+#### SSIM (Structural Similarity Index) - 結構相似性
+- **用途**: 衡量圖像的結構、亮度和對比度相似性
+- **範圍**: 0 到 1
+- **好的值**:
+  - 0.95-1.0: 優秀，幾乎完全相同
+  - 0.90-0.95: 很好，高度相似
+  - 0.80-0.90: 好，相似度高
+  - < 0.80: 需要改進
+
+### ⬇️ 越小越好 (Lower is Better)
+
+這些指標的數值越低，代表誤差越小、距離越近、或是越自然。
+
+#### NIQE (Natural Image Quality Evaluator) - 自然度
+- **用途**: 無參考圖像品質評估，衡量圖像的自然程度
+- **範圍**: 通常 0-100+
+- **好的值**:
+  - < 3: 優秀，非常自然
+  - 3-5: 好，自然
+  - 5-7: 可接受
+  - \> 7: 需要改進，不夠自然
+
+#### BRISQUE (Blind/Referenceless Image Spatial Quality Evaluator) - 影像品質
+- **用途**: 無參考圖像品質評估，檢測失真
+- **範圍**: 0-100
+- **好的值**:
+  - 0-20: 優秀品質
+  - 20-40: 好品質
+  - 40-60: 可接受
+  - \> 60: 差品質
+
+#### LOE (Lightness Order Error) - 亮度順序誤差
+- **用途**: 衡量圖像增強後亮度順序的保持程度
+- **範圍**: 0-無限大
+- **好的值**:
+  - 0-100: 優秀，對比度保持良好
+  - 100-300: 好
+  - 300-500: 可接受
+  - \> 500: 對比度保持不佳
+
+#### LPIPS (Learned Perceptual Image Patch Similarity) - 感知差異
+- **用途**: 基於深度學習的感知相似度，衡量人類視覺系統感知到的差異
+- **範圍**: 0-1+
+- **好的值**:
+  - 0-0.1: 優秀，幾乎無差異
+  - 0.1-0.2: 好，差異很小
+  - 0.2-0.3: 可接受
+  - \> 0.3: 人眼可察覺明顯差異
+
+#### Delta E (76 & 2000) - 色差
+- **用途**: 衡量兩個顏色之間的差異程度
+- **範圍**: 0-100+
+- **好的值**:
+  - 0-1: 人眼無法察覺
+  - 1-2: 非常小的差異，需仔細觀察
+  - 2-3.5: 小差異，可察覺
+  - 3.5-5: 明顯差異
+  - \> 5: 顯著差異
+- **說明**: 0 代表顏色完全一樣，CIEDE2000 比 Delta E76 更符合人眼感知
+
+#### Angular Error (AE) - 色相角度誤差 🔑
+- **用途**: 衡量色相（Hue）的偏移程度，**這是 HSV 方法最關鍵的指標**
+- **範圍**: 0-180 度
+- **好的值**:
+  - 0-5°: 優秀，色相幾乎無偏移
+  - 5-10°: 好，輕微偏移
+  - 10-15°: 可接受
+  - \> 15°: 色相偏移明顯
+- **重要性**: 對於 HSV 色彩增強方法，Angular Error 越低代表色相保持越好，色彩更加準確
+
+## 如何判讀雷達圖
+
+雷達圖將所有指標標準化到 0-1 範圍：
+- **越接近外圈 = 能力越強**
+- 「越小越好」的指標已經反轉處理（1 - 標準化值）
+- 可以一眼看出兩個模型的整體優劣和各項能力的分布
+
+## 資料格式
+
+指標資料存放在 `src/assets/data/eval15-metrics.json`：
+
+```json
+[
+  {
+    "dataset": "eval15",
+    "filename": "enhanced_1.png",
+    "image_name": "1",
+    "model": "PWGCM",
+    "metrics": {
+      "niqe": 6.4275,
+      "psnr": 16.0895,
+      ...
+    }
+  }
+]
+```
+
+## 建構與部署
 
 ```bash
 # 開發建構
@@ -92,185 +142,6 @@ npm run build
 ng build --configuration production
 ```
 
-建構結果將輸出到 `dist/portfolio` 目錄。
-
-### 開發監視模式
-
-```bash
-npm run watch
-```
-
-在監視模式下，檔案變更時會自動重新建構。
-
-### 執行測試
-
-```bash
-# 單元測試
-npm test
-
-# 程式碼覆蓋率測試
-ng test --code-coverage
-```
-
-## 📁 專案結構
-
-```
-src/
-├── app/
-│   ├── components/           # 共用元件
-│   │   ├── navigation/       # 導航元件
-│   │   └── footer/          # 頁尾元件
-│   ├── pages/               # 頁面元件
-│   │   ├── home/            # 首頁
-│   │   ├── about/           # 關於頁面
-│   │   ├── news/            # 新聞頁面
-│   │   ├── contact/         # 聯絡頁面
-│   │   └── metrics/         # 指標儀表板頁面 (新)
-│   ├── services/            # 共用服務
-│   │   └── metrics.service.ts  # 指標資料服務 (新)
-│   ├── models/              # 資料模型
-│   │   └── metrics.model.ts    # 指標資料模型 (新)
-│   ├── enums/               # 列舉定義
-│   ├── app.component.*      # 根元件
-│   ├── app.config.ts        # 應用程式配置
-│   └── app.routes.ts        # 路由配置
-├── assets/
-│   ├── data/                # 資料檔案 (新)
-│   │   └── eval15-metrics.json  # 指標資料
-│   ├── styles.scss          # 全域樣式
-│   └── scss/
-│       └── _variables.scss  # SCSS 變數定義
-└── environments/            # 環境配置
-```
-
-## 📊 使用指標儀表板
-
-### 訪問儀表板
-導航至 `/metrics` 路徑或點擊導航選單中的 "Metrics Dashboard"
-
-### 視圖模式切換
-使用頁面頂部的切換按鈕選擇顯示模式：
-- **Table Only**: 僅顯示詳細的數據表格
-- **Chart Only**: 僅顯示視覺化圖表
-- **Both**: 同時顯示圖表和表格（預設）
-
-### 圖表說明
-- **PSNR (Peak Signal-to-Noise Ratio)**: 數值越高越好
-- **SSIM (Structural Similarity Index)**: 數值越高越好
-- **NIQE (Natural Image Quality Evaluator)**: 數值越低越好
-- **BRISQUE**: 數值越低越好
-
-### 數據格式
-指標數據存儲在 `src/assets/data/eval15-metrics.json`，格式如下：
-```json
-[
-  {
-    "dataset": "eval15",
-    "filename": "enhanced_1.png",
-    "image_name": "1",
-    "model": "PWGCM",
-    "image_path": "assets/data/pwgcm/enhanced_1.png",
-    "metrics": {
-      "niqe": 6.4275,
-      "brisque": 12.8503,
-      "psnr": 16.0895,
-      "ssim": 0.8147,
-      ...
-    }
-  }
-]
-```
-
-## 🎨 樣式架構
-
-### SCSS 變數系統
-專案使用完整的 SCSS 變數系統，定義於 `src/assets/scss/_variables.scss`：
-
-- **字型系統**: 主要和次要字型家族定義
-- **字重**: 從 light (300) 到 bold (700)
-- **字體大小**: 從 xs (11px) 到 4xl (48px)
-- **顏色系統**: Primary、Gray 色階完整定義
-- **間距和佈局**: 標準化間距系統
-
-### 使用現代 @use 語法
-
-```scss
-@use 'scss/_variables' as *;
-
-.my-component {
-  font-family: $font-family-primary;
-  color: $color-primary-500;
-}
-```
-
-## 🧩 核心元件
-
-### 指標儀表板 (MetricsComponent)
-- **位置**: `src/app/pages/metrics/`
-- **功能**: 
-  - 圖像品質指標視覺化
-  - 多模型比較 (PWGCM vs HSV_Improve)
-  - 柱狀圖和數據表格顯示
-  - 視圖模式切換 (表格/圖表/兩者)
-- **服務**: `MetricsService` 管理指標資料載入和處理
-- **圖表**: 使用 PrimeNG Chart 和 Chart.js 進行視覺化
-
-### 導航元件 (NavigationComponent)
-- **位置**: `src/app/components/navigation/`
-- **功能**: 響應式導航、側邊欄、載入狀態
-- **自訂**: 支援 `logoText` 輸入屬性
-- **服務**: `NavigationService` 管理選單項目
-
-詳細使用說明請參考：`src/app/components/navigation/README.md`
-
-## 🔧 配置檔案
-
-- **angular.json**: Angular CLI 專案配置
-- **tsconfig.json**: TypeScript 編譯器配置
-- **package.json**: 專案相依性和腳本
-- **postcss.config.js**: PostCSS 配置
-
-## 📝 開發規範
-
-### 元件開發
-1. 使用 PrimeNG 作為基礎 UI 元件庫
-2. 當樣式無法符合需求時，使用自訂 SCSS
-3. 所有新元件使用 Standalone Components 架構
-
-### 樣式開發
-1. 使用 SCSS 變數化處理所有可配置參數
-2. 使用現代的 `@use` 語法取代 `@import`
-3. 遵循 BEM 命名規範
-
-### TypeScript
-- 啟用嚴格模式 (`strict: true`)
-- 使用明確的型別定義
-- 遵循 Angular 編碼風格指南
-
-## 🚀 部署
-
-### 生產建構
-```bash
-ng build --configuration production
-```
-
-### SSR 建構
-```bash
-ng build --configuration production
-npm run serve:ssr:portfolio
-```
-
-## 📞 技術支援
-
-如需技術支援或有任何問題，請參考：
-- [Angular 官方文件](https://angular.dev/)
-- [PrimeNG 文件](https://primeng.org/)
-- [專案 Issues](repository-issues-url)
-
-## 📄 授權條款
-
-本專案使用 MIT 授權條款。詳情請參閱 LICENSE 檔案。
-
 ---
 
-*本專案使用 Angular CLI 19.2.15 建立*
+*Built with Angular 19, PrimeNG 19, and Chart.js 4.5*
