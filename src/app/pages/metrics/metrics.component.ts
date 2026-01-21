@@ -39,7 +39,7 @@ interface ViewOption {
 })
 export class MetricsComponent implements OnInit {
   metrics: ImageMetric[] = [];
-  loading: boolean = true;
+  loading: boolean = false;
   viewMode: ViewMode = 'both';
   viewOptions: ViewOption[] = [
     { label: 'Table Only', value: 'table' },
@@ -70,7 +70,8 @@ export class MetricsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.loadMetrics();
+    // Start with empty metrics
+    this.loading = false;
     this.initChartOptions();
   }
 
@@ -82,7 +83,8 @@ export class MetricsComponent implements OnInit {
       try {
         const json = JSON.parse(e.target.result);
         if (Array.isArray(json)) {
-            this.metrics = json;
+            // Append new data instead of replacing
+            this.metrics = [...this.metrics, ...json];
             this.prepareChartData();
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Data uploaded successfully' });
         } else {
@@ -95,6 +97,12 @@ export class MetricsComponent implements OnInit {
     };
 
     reader.readAsText(file);
+  }
+
+  clearData(): void {
+    this.metrics = [];
+    this.prepareChartData();
+    this.messageService.add({ severity: 'info', summary: 'Cleared', detail: 'All data has been cleared' });
   }
 
   loadMetrics(): void {
@@ -154,22 +162,102 @@ export class MetricsComponent implements OnInit {
   }
 
   prepareChartData(): void {
-    if (this.metrics.length === 0) return;
+    if (this.metrics.length === 0) {
+        // Reset chart data when no metrics are present
+        this.psnrChartData = null;
+        this.ssimChartData = null;
+        this.niqeChartData = null;
+        this.brisqueChartData = null;
+        this.loeChartData = null;
+        this.lpipsChartData = null;
+        this.deltaE76OriginalChartData = null;
+        this.deltaE76ReferenceChartData = null;
+        this.ciede2000OriginalChartData = null;
+        this.ciede2000ReferenceChartData = null;
+        this.angularErrorOriginalChartData = null;
+        this.angularErrorReferenceChartData = null;
+        this.radarChartData = null;
+        return;
+    }
 
-    const models = this.metrics.map(m => m.model);
-    const colors = [
-      'rgba(59, 130, 246, 0.7)',  // Blue
-      'rgba(16, 185, 129, 0.7)',  // Green
+    // 1. Group metrics by model
+    const groupedMetrics = this.metrics.reduce((acc, curr) => {
+      if (!acc[curr.model]) {
+        acc[curr.model] = [];
+      }
+      acc[curr.model].push(curr);
+      return acc;
+    }, {} as Record<string, ImageMetric[]>);
+
+    const models = Object.keys(groupedMetrics);
+
+    // 2. Calculate averages for each model
+    const averagedMetrics = models.map(model => {
+      const metricsList = groupedMetrics[model];
+      const count = metricsList.length;
+
+      const sum = metricsList.reduce((acc, curr) => ({
+        psnr: acc.psnr + curr.metrics.psnr,
+        ssim: acc.ssim + curr.metrics.ssim,
+        niqe: acc.niqe + curr.metrics.niqe,
+        brisque: acc.brisque + curr.metrics.brisque,
+        loe: acc.loe + curr.metrics.loe,
+        lpips: acc.lpips + curr.metrics.lpips,
+        delta_e76_vs_original: acc.delta_e76_vs_original + curr.metrics.delta_e76_vs_original.mean,
+        delta_e76_vs_reference: acc.delta_e76_vs_reference + curr.metrics.delta_e76_vs_reference.mean,
+        ciede2000_vs_original: acc.ciede2000_vs_original + curr.metrics.ciede2000_vs_original.mean,
+        ciede2000_vs_reference: acc.ciede2000_vs_reference + curr.metrics.ciede2000_vs_reference.mean,
+        angular_error_vs_original: acc.angular_error_vs_original + curr.metrics.angular_error_vs_original.mean,
+        angular_error_vs_reference: acc.angular_error_vs_reference + curr.metrics.angular_error_vs_reference.mean,
+      }), {
+        psnr: 0, ssim: 0, niqe: 0, brisque: 0, loe: 0, lpips: 0,
+        delta_e76_vs_original: 0, delta_e76_vs_reference: 0,
+        ciede2000_vs_original: 0, ciede2000_vs_reference: 0,
+        angular_error_vs_original: 0, angular_error_vs_reference: 0
+      });
+
+      return {
+        model,
+        metrics: {
+          psnr: sum.psnr / count,
+          ssim: sum.ssim / count,
+          niqe: sum.niqe / count,
+          brisque: sum.brisque / count,
+          loe: sum.loe / count,
+          lpips: sum.lpips / count,
+          delta_e76_vs_original: { mean: sum.delta_e76_vs_original / count },
+          delta_e76_vs_reference: { mean: sum.delta_e76_vs_reference / count },
+          ciede2000_vs_original: { mean: sum.ciede2000_vs_original / count },
+          ciede2000_vs_reference: { mean: sum.ciede2000_vs_reference / count },
+          angular_error_vs_original: { mean: sum.angular_error_vs_original / count },
+          angular_error_vs_reference: { mean: sum.angular_error_vs_reference / count }
+        }
+      };
+    });
+
+    const baseColors = [
+      'rgba(59, 130, 246, 0.7)',   // Blue
+      'rgba(16, 185, 129, 0.7)',   // Green
+      'rgba(249, 115, 22, 0.7)',   // Orange
+      'rgba(139, 92, 246, 0.7)',   // Purple
+      'rgba(236, 72, 153, 0.7)',   // Pink
+      'rgba(234, 179, 8, 0.7)',    // Yellow
+      'rgba(6, 182, 212, 0.7)',    // Cyan
+      'rgba(220, 38, 38, 0.7)',    // Red
     ];
+
+    const getColors = (count: number) => Array(count).fill(0).map((_, i) => baseColors[i % baseColors.length]);
+    const chartColors = getColors(models.length);
+    const borderColors = chartColors.map(c => c.replace('0.7', '1'));
 
     // PSNR Chart (Higher is better)
     this.psnrChartData = {
       labels: models,
       datasets: [{
-        label: 'PSNR',
-        data: this.metrics.map(m => m.metrics.psnr),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'PSNR (Avg)',
+        data: averagedMetrics.map(m => m.metrics.psnr),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -178,10 +266,10 @@ export class MetricsComponent implements OnInit {
     this.ssimChartData = {
       labels: models,
       datasets: [{
-        label: 'SSIM',
-        data: this.metrics.map(m => m.metrics.ssim),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'SSIM (Avg)',
+        data: averagedMetrics.map(m => m.metrics.ssim),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -190,10 +278,10 @@ export class MetricsComponent implements OnInit {
     this.niqeChartData = {
       labels: models,
       datasets: [{
-        label: 'NIQE',
-        data: this.metrics.map(m => m.metrics.niqe),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'NIQE (Avg)',
+        data: averagedMetrics.map(m => m.metrics.niqe),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -202,10 +290,10 @@ export class MetricsComponent implements OnInit {
     this.brisqueChartData = {
       labels: models,
       datasets: [{
-        label: 'BRISQUE',
-        data: this.metrics.map(m => m.metrics.brisque),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'BRISQUE (Avg)',
+        data: averagedMetrics.map(m => m.metrics.brisque),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -214,10 +302,10 @@ export class MetricsComponent implements OnInit {
     this.loeChartData = {
       labels: models,
       datasets: [{
-        label: 'LOE',
-        data: this.metrics.map(m => m.metrics.loe),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'LOE (Avg)',
+        data: averagedMetrics.map(m => m.metrics.loe),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -226,10 +314,10 @@ export class MetricsComponent implements OnInit {
     this.lpipsChartData = {
       labels: models,
       datasets: [{
-        label: 'LPIPS',
-        data: this.metrics.map(m => m.metrics.lpips),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'LPIPS (Avg)',
+        data: averagedMetrics.map(m => m.metrics.lpips),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -238,10 +326,10 @@ export class MetricsComponent implements OnInit {
     this.deltaE76OriginalChartData = {
       labels: models,
       datasets: [{
-        label: 'Delta E76 vs Original (Mean)',
-        data: this.metrics.map(m => m.metrics.delta_e76_vs_original.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'Delta E76 vs Original (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -250,10 +338,10 @@ export class MetricsComponent implements OnInit {
     this.deltaE76ReferenceChartData = {
       labels: models,
       datasets: [{
-        label: 'Delta E76 vs Reference (Mean)',
-        data: this.metrics.map(m => m.metrics.delta_e76_vs_reference.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'Delta E76 vs Reference (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -262,10 +350,10 @@ export class MetricsComponent implements OnInit {
     this.ciede2000OriginalChartData = {
       labels: models,
       datasets: [{
-        label: 'CIEDE2000 vs Original (Mean)',
-        data: this.metrics.map(m => m.metrics.ciede2000_vs_original.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'CIEDE2000 vs Original (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -274,10 +362,10 @@ export class MetricsComponent implements OnInit {
     this.ciede2000ReferenceChartData = {
       labels: models,
       datasets: [{
-        label: 'CIEDE2000 vs Reference (Mean)',
-        data: this.metrics.map(m => m.metrics.ciede2000_vs_reference.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'CIEDE2000 vs Reference (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -286,10 +374,10 @@ export class MetricsComponent implements OnInit {
     this.angularErrorOriginalChartData = {
       labels: models,
       datasets: [{
-        label: 'Angular Error vs Original (Mean)',
-        data: this.metrics.map(m => m.metrics.angular_error_vs_original.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'Angular Error vs Original (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
@@ -298,71 +386,75 @@ export class MetricsComponent implements OnInit {
     this.angularErrorReferenceChartData = {
       labels: models,
       datasets: [{
-        label: 'Angular Error vs Reference (Mean)',
-        data: this.metrics.map(m => m.metrics.angular_error_vs_reference.mean),
-        backgroundColor: colors,
-        borderColor: colors.map(c => c.replace('0.7', '1')),
+        label: 'Angular Error vs Reference (Avg Mean)',
+        data: averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean),
+        backgroundColor: chartColors,
+        borderColor: borderColors,
         borderWidth: 1
       }]
     };
 
-    // Radar Chart - Overall Capability Comparison
-    // Normalize metrics to 0-1 scale for radar chart
-    const pwgcm = this.metrics.find(m => m.model === 'PWGCM');
-    const hsv = this.metrics.find(m => m.model === 'HSV_Improve');
+    // Radar Chart - Overall Capability Comparison (Dynamic)
+    // Find absolute max/min across all averaged models for normalization
+    const maxValues = {
+      psnr: Math.max(...averagedMetrics.map(m => m.metrics.psnr)),
+      ssim: 1, // SSIM is always max 1
+    };
 
-    if (pwgcm && hsv) {
-      // For "higher is better" metrics, use direct normalization
-      // For "lower is better" metrics, invert the scale (1 - normalized value)
-      const maxPSNR = Math.max(pwgcm.metrics.psnr, hsv.metrics.psnr);
-      const maxSSIM = 1; // SSIM max is 1
+    // For lower is better, we generally need the Min value (best performance)
+    const minValues = {
+      niqe: Math.min(...averagedMetrics.map(m => m.metrics.niqe)),
+      brisque: Math.min(...averagedMetrics.map(m => m.metrics.brisque)),
+      loe: Math.min(...averagedMetrics.map(m => m.metrics.loe)),
+      lpips: Math.min(...averagedMetrics.map(m => m.metrics.lpips)),
+      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
+      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
+    };
 
-      // For lower is better metrics, we'll use inverse normalization
-      const maxNIQE = Math.max(pwgcm.metrics.niqe, hsv.metrics.niqe);
-      const maxBRISQUE = Math.max(pwgcm.metrics.brisque, hsv.metrics.brisque);
-      const maxLOE = Math.max(pwgcm.metrics.loe, hsv.metrics.loe);
-      const maxLPIPS = Math.max(pwgcm.metrics.lpips, hsv.metrics.lpips);
-      const maxDeltaE = Math.max(pwgcm.metrics.delta_e76_vs_original.mean, hsv.metrics.delta_e76_vs_original.mean);
-      const maxAngularError = Math.max(pwgcm.metrics.angular_error_vs_original.mean, hsv.metrics.angular_error_vs_original.mean);
+    // Helper for Higher is Better: val / max
+    const normalizeHigherBetter = (val: number, max: number) => {
+        if (max <= 0) return 0;
+        return val / max;
+    };
 
-      this.radarChartData = {
-        labels: ['PSNR ↑', 'SSIM ↑', 'NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓', 'Delta E ↓', 'Angular Error ↓'],
-        datasets: [
-          {
-            label: 'PWGCM',
+    // Helper for Lower is Better: min / val (Efficiency relative to best observed)
+    // If Val is 0 (perfect), Score is 1. IF Val > 0, Score = Min / Val.
+    // This ensures that the best model (== Min) always gets 1.0 (Full Radar).
+    // And worse models get < 1.0.
+    const normalizeLowerBetter = (val: number, min: number) => {
+        if (val <= 0) return 1; // 0 error is perfect score
+        if (min === 0) return 0; // If best is 0, and current is > 0, score is 0 relative to perfection?
+                                 // Or we can treat it differently. Usually errors aren't exactly 0.
+        return min / val;
+    };
+
+    const radarDatasets = averagedMetrics.map((am, index) => {
+        const color = baseColors[index % baseColors.length];
+        const borderColor = color.replace('0.7', '1');
+        const bgColor = color.replace('0.7', '0.2');
+
+        return {
+            label: am.model,
             data: [
-              pwgcm.metrics.psnr / maxPSNR,
-              pwgcm.metrics.ssim / maxSSIM,
-              1 - (pwgcm.metrics.niqe / maxNIQE),
-              1 - (pwgcm.metrics.brisque / maxBRISQUE),
-              1 - (pwgcm.metrics.loe / maxLOE),
-              1 - (pwgcm.metrics.lpips / maxLPIPS),
-              1 - (pwgcm.metrics.delta_e76_vs_original.mean / maxDeltaE),
-              1 - (pwgcm.metrics.angular_error_vs_original.mean / maxAngularError)
+                normalizeHigherBetter(am.metrics.psnr, maxValues.psnr),
+                normalizeHigherBetter(am.metrics.ssim, maxValues.ssim),
+                normalizeLowerBetter(am.metrics.niqe, minValues.niqe),
+                normalizeLowerBetter(am.metrics.brisque, minValues.brisque),
+                normalizeLowerBetter(am.metrics.loe, minValues.loe),
+                normalizeLowerBetter(am.metrics.lpips, minValues.lpips),
+                normalizeLowerBetter(am.metrics.delta_e76_vs_original.mean, minValues.deltaE),
+                normalizeLowerBetter(am.metrics.angular_error_vs_original.mean, minValues.angularError)
             ],
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            borderColor: 'rgba(59, 130, 246, 1)',
+            backgroundColor: bgColor,
+            borderColor: borderColor,
             borderWidth: 2
-          },
-          {
-            label: 'HSV_Improve',
-            data: [
-              hsv.metrics.psnr / maxPSNR,
-              hsv.metrics.ssim / maxSSIM,
-              1 - (hsv.metrics.niqe / maxNIQE),
-              1 - (hsv.metrics.brisque / maxBRISQUE),
-              1 - (hsv.metrics.loe / maxLOE),
-              1 - (hsv.metrics.lpips / maxLPIPS),
-              1 - (hsv.metrics.delta_e76_vs_original.mean / maxDeltaE),
-              1 - (hsv.metrics.angular_error_vs_original.mean / maxAngularError)
-            ],
-            backgroundColor: 'rgba(16, 185, 129, 0.2)',
-            borderColor: 'rgba(16, 185, 129, 1)',
-            borderWidth: 2
-          }
-        ]
-      };
-    }
+        };
+    });
+
+    this.radarChartData = {
+      labels: ['PSNR ↑', 'SSIM ↑', 'NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓', 'Delta E ↓', 'Angular Error ↓'],
+      datasets: radarDatasets
+    };
   }
 
   getModelNames(): string[] {
