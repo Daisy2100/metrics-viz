@@ -1,0 +1,94 @@
+@use 'sass:color';
+
+// Font Families
+$font-family-primary: "Manrope", "IBM Plex Sans JP", yakuhanjp, -apple-system, blinkmacsystemfont, "Helvetica Neue", hiragino sans, "\30d2\30e9\30ae\30ce\89d2\30b4 ProN W3", hiragino kaku gothic pron, "Yu Gothic", yugothic, verdana, meiryo, "M+ 1p", sans-serif;
+$font-family-secondary: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Font Sizes
+$font-size-xs: 0.6875rem;   // 11px
+$font-size-sm: 0.75rem;     // 12px
+$font-size-base: 0.875rem;  // 14px
+$font-size-lg: 1rem;        // 16px
+$font-size-xl: 1.25rem;     // 20px
+$font-size-2xl: 1.75rem;    // 28px
+$font-size-3xl: 2.25rem;    // 36px
+$font-size-4xl: 3rem;       // 48px
+
+// Letter Spacing
+$letter-spacing-tight: -0.025em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.025em;
+$letter-spacing-wider: 0.05em;
+$letter-spacing-widest: 0.1em;
+
+// Colors
+$color-black: #000000;
+$color-white: #ffffff;
+
+// Primary Colors
+$color-primary: #3b82f6;        // Blue-500
+$color-primary-50: #eff6ff;
+$color-primary-100: #dbeafe;
+$color-primary-200: #bfdbfe;
+$color-primary-300: #93c5fd;
+$color-primary-400: #60a5fa;
+$color-primary-500: #3b82f6;
+$color-primary-600: #2563eb;
+$color-primary-700: #1d4ed8;
+$color-primary-800: #1e40af;
+$color-primary-900: #1e3a8a;
+
+// Gray Colors
+$color-gray-50: #f9fafb;
+$color-gray-100: #f7f8fc;
+$color-gray-200: #edf2f7;
+$color-gray-300: #e2e8f0;
+$color-gray-400: #cbd5e0;
+$color-gray-500: #a0aec0;
+$color-gray-600: #718096;
+$color-gray-700: #4a5568;
+$color-gray-800: #2d3748;
+$color-gray-900: #1a202c;
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Spacing
+$spacing-xs: 0.25rem;   // 4px
+$spacing-sm: 0.5rem;    // 8px
+$spacing-md: 1rem;      // 16px
+$spacing-lg: 1.5rem;    // 24px
+$spacing-xl: 2rem;      // 32px
+$spacing-2xl: 3rem;     // 48px
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Color helper functions using modern Sass syntax
+// 替代舊版 darken() 函數的現代化方法
+@function darken-color($color, $amount) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+@function lighten-color($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}
+
+// 常用的顏色變體
+$color-primary-darker: darken-color($color-primary, 8%);
+$color-primary-darker-alt: darken-color($color-primary, 10%);

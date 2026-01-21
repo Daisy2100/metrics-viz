@@ -1,0 +1,92 @@
+@use '../../../assets/scss/_variables' as *;
+
+.news-container {
+  min-height: 100vh;
+  font-family: $font-family-primary;
+}
+
+.news-hero {
+  padding: 8rem 2rem 4rem;
+  background: linear-gradient(to bottom, #f1f5f9, #ffffff);
+  text-align: center;
+
+  .hero-content {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .news-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: $font-weight-light;
+    color: $color-gray-900;
+    margin-bottom: 1rem;
+    letter-spacing: $letter-spacing-wide;
+  }
+
+  .news-subtitle {
+    font-size: 1.25rem;
+    color: $color-gray-600;
+    font-weight: $font-weight-normal;
+  }
+}
+
+.news-content {
+  padding: 4rem 2rem;
+
+  .content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .news-item {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba($color-gray-200, 0.8);
+    transition: all $transition-normal;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+    }
+
+    .news-date {
+      font-size: 0.875rem;
+      color: $color-gray-500;
+      margin-bottom: 0.5rem;
+      font-weight: $font-weight-medium;
+    }
+
+    .news-item-title {
+      font-size: 1.5rem;
+      font-weight: $font-weight-semibold;
+      color: $color-gray-900;
+      margin-bottom: 1rem;
+      letter-spacing: $letter-spacing-normal;
+    }
+
+    .news-excerpt {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: $color-gray-700;
+      margin-bottom: 1.5rem;
+    }
+
+    .read-more {
+      display: inline-block;
+      color: $color-primary;      text-decoration: none;
+      font-weight: $font-weight-medium;
+      font-size: 0.875rem;
+      letter-spacing: $letter-spacing-wide;
+      text-transform: uppercase;
+      transition: color $transition-normal;
+
+      &:hover {
+        color: $color-primary-darker-alt;
+        text-decoration: underline;
+      }
+    }
+  }
+}

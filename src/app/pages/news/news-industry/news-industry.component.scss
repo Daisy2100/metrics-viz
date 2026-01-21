@@ -1,0 +1,27 @@
+@use '../../../../assets/scss/_variables' as *;
+
+.news-industry-container {
+  padding: $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  h1 {
+    font: {
+      family: $font-family-primary;
+      size: $font-size-3xl;
+      weight: $font-weight-bold;
+    }
+    color: $color-black;
+    margin-bottom: $spacing-lg;
+  }
+
+  p {
+    font: {
+      family: $font-family-primary;
+      size: $font-size-lg;
+      weight: $font-weight-normal;
+    }
+    color: $color-gray-700;
+    line-height: 1.6;
+  }
+}

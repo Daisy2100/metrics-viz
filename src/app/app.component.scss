@@ -1,0 +1,19 @@
+@use '../assets/scss/variables' as *;
+
+// 確保整個應用程式佔滿整個螢幕高度
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+// 為了確保 router-outlet 的內容能夠填滿可用空間
+:host ::ng-deep router-outlet+* {
+    flex: 1;
+}

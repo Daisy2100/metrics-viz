@@ -1,0 +1,74 @@
+name: Deploy Angular to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Angular
+        run: npm run build -- --configuration production --base-href /template-angular/
+
+      - name: Locate Build Output
+        id: setup_cname
+        run: |
+          # 1. 直接搜尋整個 dist 資料夾，找出 index.html 在哪裡
+          INDEX_PATH=$(find dist -name "index.html" | head -n 1)
+          
+          if [ -z "$INDEX_PATH" ]; then
+            echo "❌ 錯誤：找不到 index.html！建置可能失敗了，或者輸出路徑不在 dist 內。"
+            # 列出 dist 結構幫忙除錯
+            ls -R dist
+            exit 1
+          fi
+
+          # 2. 取得 index.html 所在的資料夾路徑 (dirname)
+          TARGET_DIR=$(dirname "$INDEX_PATH")
+          
+          echo "✅ 找到 index.html 位於: $INDEX_PATH"
+          echo "✅ 最終部署目錄鎖定為: $TARGET_DIR"
+          
+          # 3. 建立 CNAME
+          echo "daisy2100.com" > "$TARGET_DIR/CNAME"
+          
+          # 4. 存變數
+          echo "BUILD_PATH=$TARGET_DIR" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.BUILD_PATH }}
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

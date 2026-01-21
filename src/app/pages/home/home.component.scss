@@ -1,0 +1,43 @@
+@use '../../assets/scss/_variables' as *;
+
+.hero-section {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+  font-family: $font-family-primary;
+
+  .hero-container {
+    padding-top: 8rem;
+    padding-bottom: 5rem;
+
+    .hero-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      text-align: center;
+    }
+  }
+
+  .hero-title {
+    font-family: $font-family-primary;
+    font-weight: $font-weight-light;
+    font-size: clamp(3rem, 8vw, 6rem);
+    color: $color-gray-900;
+    letter-spacing: $letter-spacing-wide;
+    margin-bottom: 2rem;
+    line-height: 1.1;
+
+    @media (min-width: 768px) {
+      font-size: clamp(4rem, 10vw, 8rem);
+    }
+  }
+
+  .hero-subtitle {
+    font-family: $font-family-primary;
+    font-weight: $font-weight-normal;
+    font-size: 1.125rem;
+    color: $color-gray-600;
+    line-height: 1.6;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+}

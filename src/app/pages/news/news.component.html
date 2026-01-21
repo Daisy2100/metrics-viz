@@ -1,0 +1,37 @@
+<div class="news-container">
+  <section class="news-hero">
+    <div class="hero-content">
+      <h1 class="news-title">最新消息</h1>
+      <p class="news-subtitle">掌握最新資訊與動態</p>
+    </div>
+  </section>
+
+  <!-- 子路由內容區域 -->
+  <router-outlet></router-outlet>
+
+  <!-- 如果沒有子路由，顯示預設內容 -->
+  <section class="news-content" *ngIf="!hasActiveChildRoute">
+    <div class="content-wrapper">
+      <article class="news-item">
+        <div class="news-date">2025-06-20</div>
+        <h2 class="news-item-title">系統升級公告</h2>
+        <p class="news-excerpt">為提供更好的服務品質，我們將於本週末進行系統升級維護...</p>
+        <a href="#" class="read-more">閱讀更多</a>
+      </article>
+
+      <article class="news-item">
+        <div class="news-date">2025-06-15</div>
+        <h2 class="news-item-title">新功能上線</h2>
+        <p class="news-excerpt">我們很高興宣布推出全新的功能模組，提升使用者體驗...</p>
+        <a href="#" class="read-more">閱讀更多</a>
+      </article>
+
+      <article class="news-item">
+        <div class="news-date">2025-06-10</div>
+        <h2 class="news-item-title">服務時間調整</h2>
+        <p class="news-excerpt">配合夏季時間調整，我們的客服時間將有所異動...</p>
+        <a href="#" class="read-more">閱讀更多</a>
+      </article>
+    </div>
+  </section>
+</div>

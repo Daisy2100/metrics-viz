@@ -1,0 +1,70 @@
+@use 'sass:color';
+@use 'variables' as *;
+
+// Backdrop filter mixin
+@mixin backdrop-blur($amount: 10px) {
+  -webkit-backdrop-filter: blur($amount);
+  backdrop-filter: blur($amount);
+}
+
+// Font shorthand mixin
+@mixin font-style($weight, $size, $family: $font-family-primary) {
+  font: $weight $size $family;
+}
+
+// Hover link mixin
+@mixin hover-link($default-color, $hover-color) {
+  color: $default-color;
+  transition: color $transition-normal;
+  &:hover { color: $hover-color; }
+}
+
+// Full viewport overlay mixin
+@mixin full-viewport-overlay($bg-color: rgba($color-white, 0.95), $blur: 20px) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: $bg-color;
+  @include backdrop-blur($blur);
+  z-index: 9999;
+}
+
+// Dropdown menu mixin
+@mixin dropdown-menu() {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: $color-white;
+  border: 1px solid rgba($color-black, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba($color-black, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all $transition-normal;
+  z-index: $z-index-dropdown;
+  margin-top: 8px;
+  padding: $spacing-sm 0;
+  list-style: none;
+}
+
+// Menu link base styles
+@mixin menu-link-base() {
+  text-decoration: none;
+  transition: all $transition-normal;
+  display: inline-block;
+}
+
+// Common animations
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
