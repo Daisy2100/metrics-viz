@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular
-        run: npm run build -- --configuration production --base-href /template-angular/
+        run: npm run build -- --configuration production --base-href /
 
       - name: Locate Build Output
         id: setup_cname
