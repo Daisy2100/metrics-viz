@@ -6,7 +6,7 @@
 
 - **Angular**: 19.2.0
 - **PrimeNG**: 19.1.3
-- **Chart.js**: 4.4.7 (用於圖表視覺化)
+- **Chart.js**: 4.5.1 (用於圖表視覺化)
 - **TypeScript**: 5.7.2
 - **SCSS**: 支援現代化樣式架構
 - **SSR**: 支援伺服器端渲染 (Angular Universal)

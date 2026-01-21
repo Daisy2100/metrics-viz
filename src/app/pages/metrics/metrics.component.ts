@@ -11,6 +11,11 @@ import { ImageMetric } from '../../models/metrics.model';
 
 type ViewMode = 'table' | 'chart' | 'both';
 
+interface ViewOption {
+  label: string;
+  value: ViewMode;
+}
+
 @Component({
   selector: 'app-metrics',
   standalone: true,
@@ -22,7 +27,7 @@ export class MetricsComponent implements OnInit {
   metrics: ImageMetric[] = [];
   loading: boolean = true;
   viewMode: ViewMode = 'both';
-  viewOptions: any[] = [
+  viewOptions: ViewOption[] = [
     { label: 'Table Only', value: 'table' },
     { label: 'Chart Only', value: 'chart' },
     { label: 'Both', value: 'both' }
