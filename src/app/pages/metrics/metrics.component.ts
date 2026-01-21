@@ -340,4 +340,64 @@ export class MetricsComponent implements OnInit {
   showCharts(): boolean {
     return this.viewMode === 'chart' || this.viewMode === 'both';
   }
+
+  /**
+   * Export a single chart as PNG image
+   * @param chartElement The chart canvas element
+   * @param filename The filename for the downloaded image
+   */
+  exportChart(chartElement: any, filename: string): void {
+    if (!chartElement || !chartElement.chart) {
+      console.error('Chart not found');
+      return;
+    }
+
+    try {
+      const chart = chartElement.chart;
+      const url = chart.toBase64Image();
+      const link = document.createElement('a');
+      link.download = `${filename}.png`;
+      link.href = url;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting chart:', error);
+    }
+  }
+
+  /**
+   * Export all charts as PNG images
+   */
+  exportAllCharts(): void {
+    // Get all chart canvas elements
+    const charts = document.querySelectorAll('p-chart canvas');
+    const chartNames = [
+      'radar-overall-comparison',
+      'psnr-comparison',
+      'ssim-comparison',
+      'niqe-comparison',
+      'brisque-comparison',
+      'loe-comparison',
+      'lpips-comparison',
+      'delta-e76-original',
+      'delta-e76-reference',
+      'ciede2000-original',
+      'ciede2000-reference',
+      'angular-error-original',
+      'angular-error-reference'
+    ];
+
+    charts.forEach((canvas: any, index: number) => {
+      setTimeout(() => {
+        try {
+          const url = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.download = `${chartNames[index] || `chart-${index + 1}`}.png`;
+          link.href = url;
+          link.click();
+        } catch (error) {
+          console.error(`Error exporting chart ${index}:`, error);
+        }
+      }, index * 200); // Delay each download to avoid browser blocking
+    });
+  }
 }

@@ -12,6 +12,13 @@
       optionLabel="label" 
       optionValue="value">
     </p-selectButton>
+    <p-button 
+      *ngIf="showCharts()"
+      label="Export All Charts" 
+      icon="pi pi-download" 
+      (onClick)="exportAllCharts()"
+      styleClass="p-button-outlined export-all-btn">
+    </p-button>
   </div>
 
   <!-- Charts Section -->

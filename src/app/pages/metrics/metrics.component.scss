@@ -26,7 +26,10 @@
 .view-toggle {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 
   ::ng-deep .p-selectbutton {
     .p-button {
@@ -37,6 +40,15 @@
         background-color: $color-primary-500;
         border-color: $color-primary-500;
       }
+    }
+  }
+
+  ::ng-deep .export-all-btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: $font-weight-medium;
+
+    .pi-download {
+      font-size: 1rem;
     }
   }
 }
