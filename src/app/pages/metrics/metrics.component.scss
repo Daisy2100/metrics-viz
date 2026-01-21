@@ -23,6 +23,39 @@
   }
 }
 
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+
+  ::ng-deep .p-selectbutton {
+    .p-button {
+      padding: 0.75rem 1.5rem;
+      font-weight: $font-weight-medium;
+
+      &.p-highlight {
+        background-color: $color-primary-500;
+        border-color: $color-primary-500;
+      }
+    }
+  }
+}
+
+.metrics-charts {
+  margin-bottom: 2rem;
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 1.5rem;
+
+    .chart-container {
+      height: 300px;
+      padding: 1rem 0;
+    }
+  }
+}
+
 .metrics-content {
   display: flex;
   flex-direction: column;
@@ -80,6 +113,25 @@
 
     .metrics-subtitle {
       font-size: $font-size-base;
+    }
+  }
+
+  .metrics-charts {
+    .charts-grid {
+      grid-template-columns: 1fr;
+
+      .chart-container {
+        height: 250px;
+      }
+    }
+  }
+
+  .view-toggle {
+    ::ng-deep .p-selectbutton {
+      .p-button {
+        padding: 0.5rem 1rem;
+        font-size: $font-size-sm;
+      }
     }
   }
 

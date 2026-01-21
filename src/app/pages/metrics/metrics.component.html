@@ -4,7 +4,47 @@
     <p class="metrics-subtitle">Comparison of PWGCM vs HSV_Improve models on eval15 dataset</p>
   </div>
 
-  <div class="metrics-content" *ngIf="!loading && metrics.length > 0">
+  <!-- View Mode Toggle -->
+  <div class="view-toggle" *ngIf="!loading && metrics.length > 0">
+    <p-selectButton 
+      [options]="viewOptions" 
+      [(ngModel)]="viewMode" 
+      optionLabel="label" 
+      optionValue="value">
+    </p-selectButton>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="metrics-charts" *ngIf="showCharts() && !loading && metrics.length > 0">
+    <div class="charts-grid">
+      <p-card header="PSNR Comparison (Higher is Better)" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="psnrChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="SSIM Comparison (Higher is Better)" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="ssimChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="NIQE Comparison (Lower is Better)" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="niqeChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="BRISQUE Comparison (Lower is Better)" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="brisqueChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Tables Section -->
+  <div class="metrics-content" *ngIf="showTable() && !loading && metrics.length > 0">
     <p-card header="Model Comparison Overview" styleClass="metrics-card">
       <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
         <ng-template pTemplate="header">
