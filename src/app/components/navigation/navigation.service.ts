@@ -32,58 +32,10 @@ export class NavigationService {
   getDefaultNavigationItems(): NavigationItem[] {
     return [
       {
-        id: 'home',
-        displayName: '首頁',
-        path: '/',
-        order: 0
-      },
-      {
-        id: 'about',
-        displayName: '關於我們',
-        path: '/about',
-        order: 1
-      },
-      {
-        id: 'news',
-        displayName: '最新消息',
-        path: '/news',
-        order: 2,
-        hasChildren: true,
-        children: [
-          {
-            id: 'news-company',
-            displayName: '公司動態',
-            path: '/news/company',
-            order: 0,
-            parentId: 'news'
-          },
-          {
-            id: 'news-product',
-            displayName: '產品資訊',
-            path: '/news/product',
-            order: 1,
-            parentId: 'news'
-          },
-          {
-            id: 'news-industry',
-            displayName: '行業新聞',
-            path: '/news/industry',
-            order: 2,
-            parentId: 'news'
-          }
-        ]
-      },
-      {
-        id: 'contact',
-        displayName: '聯絡我們',
-        path: '/contact',
-        order: 3
-      },
-      {
         id: 'metrics',
         displayName: 'Metrics Dashboard',
-        path: '/metrics',
-        order: 4
+        path: '/',
+        order: 0
       }
     ];
   }

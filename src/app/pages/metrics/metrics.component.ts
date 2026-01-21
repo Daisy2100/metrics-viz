@@ -6,6 +6,9 @@ import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { MetricsService } from '../../services/metrics.service';
 import { ImageMetric } from '../../models/metrics.model';
 
@@ -19,7 +22,18 @@ interface ViewOption {
 @Component({
   selector: 'app-metrics',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, CardModule, ChartModule, ButtonModule, SelectButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    CardModule,
+    ChartModule,
+    ButtonModule,
+    SelectButtonModule,
+    FileUploadModule,
+    ToastModule
+  ],
+  providers: [MessageService],
   templateUrl: './metrics.component.html',
   styleUrl: './metrics.component.scss'
 })
@@ -50,11 +64,37 @@ export class MetricsComponent implements OnInit {
   chartOptions: any;
   radarChartOptions: any;
 
-  constructor(private metricsService: MetricsService) { }
+  constructor(
+    private metricsService: MetricsService,
+    private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     this.loadMetrics();
     this.initChartOptions();
+  }
+
+  onUpload(event: any) {
+    const file = event.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e: any) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        if (Array.isArray(json)) {
+            this.metrics = json;
+            this.prepareChartData();
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Data uploaded successfully' });
+        } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid JSON format: Expected an array' });
+        }
+      } catch (error) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error parsing JSON file' });
+        console.error('JSON parse error:', error);
+      }
+    };
+
+    reader.readAsText(file);
   }
 
   loadMetrics(): void {
@@ -276,7 +316,7 @@ export class MetricsComponent implements OnInit {
       // For "lower is better" metrics, invert the scale (1 - normalized value)
       const maxPSNR = Math.max(pwgcm.metrics.psnr, hsv.metrics.psnr);
       const maxSSIM = 1; // SSIM max is 1
-      
+
       // For lower is better metrics, we'll use inverse normalization
       const maxNIQE = Math.max(pwgcm.metrics.niqe, hsv.metrics.niqe);
       const maxBRISQUE = Math.max(pwgcm.metrics.brisque, hsv.metrics.brisque);

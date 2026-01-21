@@ -4,18 +4,33 @@
     <p class="metrics-subtitle">Image Quality Metrics Visualization Dashboard</p>
   </div>
 
+  <!-- Data Upload Section -->
+  <div class="data-upload-section">
+    <p-fileUpload
+        mode="basic"
+        chooseLabel="上傳 JSON 數據 / Upload JSON Data"
+        chooseIcon="pi pi-upload"
+        accept=".json"
+        maxFileSize="5000000"
+        [customUpload]="true"
+        (uploadHandler)="onUpload($event)"
+        [auto]="true"
+        styleClass="p-button-help p-button-lg w-full md:w-auto">
+    </p-fileUpload>
+  </div>
+
   <!-- View Mode Toggle -->
   <div class="view-toggle" *ngIf="!loading && metrics.length > 0">
-    <p-selectButton 
-      [options]="viewOptions" 
-      [(ngModel)]="viewMode" 
-      optionLabel="label" 
+    <p-selectButton
+      [options]="viewOptions"
+      [(ngModel)]="viewMode"
+      optionLabel="label"
       optionValue="value">
     </p-selectButton>
-    <p-button 
+    <p-button
       *ngIf="showCharts()"
-      label="Export All Charts" 
-      icon="pi pi-download" 
+      label="Export All Charts"
+      icon="pi pi-download"
       (onClick)="exportAllCharts()"
       styleClass="p-button-outlined export-all-btn">
     </p-button>

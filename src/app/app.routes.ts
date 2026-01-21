@@ -10,7 +10,7 @@ import { NewsIndustryComponent } from './pages/news/news-industry/news-industry.
 import { MetricsComponent } from './pages/metrics/metrics.component';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
+    { path: '', component: MetricsComponent },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'about', component: AboutComponent },
     {
