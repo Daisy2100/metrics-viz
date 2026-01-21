@@ -1,0 +1,67 @@
+{
+  "images": [
+    {
+      "imageName": "image1.jpg",
+      "method": "Method A",
+      "psnr": 28.5,
+      "ssim": 0.9234,
+      "deltaE": 4.2
+    },
+    {
+      "imageName": "image1.jpg",
+      "method": "Method B",
+      "psnr": 30.2,
+      "ssim": 0.9456,
+      "deltaE": 3.1
+    },
+    {
+      "imageName": "image1.jpg",
+      "method": "Method C",
+      "psnr": 27.8,
+      "ssim": 0.9123,
+      "deltaE": 5.3
+    },
+    {
+      "imageName": "image2.jpg",
+      "method": "Method A",
+      "psnr": 32.1,
+      "ssim": 0.9567,
+      "deltaE": 2.8
+    },
+    {
+      "imageName": "image2.jpg",
+      "method": "Method B",
+      "psnr": 31.5,
+      "ssim": 0.9489,
+      "deltaE": 3.4
+    },
+    {
+      "imageName": "image2.jpg",
+      "method": "Method C",
+      "psnr": 29.9,
+      "ssim": 0.9321,
+      "deltaE": 4.1
+    },
+    {
+      "imageName": "image3.jpg",
+      "method": "Method A",
+      "psnr": 26.7,
+      "ssim": 0.8956,
+      "deltaE": 5.6
+    },
+    {
+      "imageName": "image3.jpg",
+      "method": "Method B",
+      "psnr": 28.3,
+      "ssim": 0.9178,
+      "deltaE": 4.5
+    },
+    {
+      "imageName": "image3.jpg",
+      "method": "Method C",
+      "psnr": 25.9,
+      "ssim": 0.8834,
+      "deltaE": 6.2
+    }
+  ]
+}
