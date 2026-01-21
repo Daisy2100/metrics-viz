@@ -44,6 +44,34 @@
 .metrics-charts {
   margin-bottom: 2rem;
 
+  .radar-chart-container {
+    margin-bottom: 2rem;
+
+    .radar-card {
+      max-width: 800px;
+      margin: 0 auto;
+
+      .radar-description {
+        text-align: center;
+        color: $color-gray-600;
+        margin-bottom: 1rem;
+        font-size: $font-size-sm;
+      }
+
+      .radar-chart {
+        height: 500px;
+      }
+    }
+  }
+
+  .charts-section-title {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $color-primary-600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
   .charts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -52,6 +80,13 @@
     .chart-container {
       height: 300px;
       padding: 1rem 0;
+    }
+
+    .highlight-card {
+      ::ng-deep .p-card-header {
+        background-color: rgba($color-primary-200, 0.3);
+        border-left: 4px solid $color-primary-600;
+      }
     }
   }
 }
@@ -117,6 +152,14 @@
   }
 
   .metrics-charts {
+    .radar-chart-container {
+      .radar-card {
+        .radar-chart {
+          height: 350px;
+        }
+      }
+    }
+
     .charts-grid {
       grid-template-columns: 1fr;
 

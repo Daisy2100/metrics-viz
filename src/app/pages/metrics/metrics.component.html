@@ -16,28 +16,95 @@
 
   <!-- Charts Section -->
   <div class="metrics-charts" *ngIf="showCharts() && !loading && metrics.length > 0">
+    <!-- Radar Chart for Overall Comparison -->
+    <div class="radar-chart-container">
+      <p-card header="Overall Capability Comparison (Radar)" styleClass="metrics-card radar-card">
+        <p class="radar-description">
+          🟢 越接近外圈越好 | ↑ Higher is Better, ↓ Lower is Better (已轉換為能力分數)
+        </p>
+        <div class="chart-container radar-chart">
+          <p-chart type="radar" [data]="radarChartData" [options]="radarChartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Bar Charts Grid -->
+    <h3 class="charts-section-title">📊 Individual Metrics Comparison</h3>
     <div class="charts-grid">
-      <p-card header="PSNR Comparison (Higher is Better)" styleClass="metrics-card">
+      <!-- Higher is Better Metrics -->
+      <p-card header="PSNR (Higher is Better) ↑" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="psnrChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="SSIM Comparison (Higher is Better)" styleClass="metrics-card">
+      <p-card header="SSIM (Higher is Better) ↑" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="ssimChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="NIQE Comparison (Lower is Better)" styleClass="metrics-card">
+      <!-- Lower is Better Metrics -->
+      <p-card header="NIQE (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="niqeChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="BRISQUE Comparison (Lower is Better)" styleClass="metrics-card">
+      <p-card header="BRISQUE (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="brisqueChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="LOE (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="loeChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="LPIPS (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="lpipsChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <!-- Delta E Metrics -->
+      <p-card header="Delta E76 vs Original (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="deltaE76OriginalChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="Delta E76 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="deltaE76ReferenceChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <!-- CIEDE2000 Metrics -->
+      <p-card header="CIEDE2000 vs Original (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="ciede2000OriginalChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="CIEDE2000 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="ciede2000ReferenceChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <!-- Angular Error Metrics (Critical for HSV method) -->
+      <p-card header="Angular Error vs Original (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="angularErrorOriginalChartData" [options]="chartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <p-card header="Angular Error vs Reference (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
+        <div class="chart-container">
+          <p-chart type="bar" [data]="angularErrorReferenceChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
     </div>
