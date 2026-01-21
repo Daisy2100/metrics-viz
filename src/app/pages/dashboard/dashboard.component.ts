@@ -56,7 +56,10 @@ export class DashboardComponent {
       if (!methodsMap.has(metric.method)) {
         methodsMap.set(metric.method, []);
       }
-      methodsMap.get(metric.method)!.push(metric);
+      const methodMetrics = methodsMap.get(metric.method);
+      if (methodMetrics) {
+        methodMetrics.push(metric);
+      }
     });
 
     const methods = Array.from(methodsMap.keys());
@@ -65,7 +68,7 @@ export class DashboardComponent {
     // PSNR Chart Data (Higher is better)
     const psnrDatasets = methods.map((method, index) => {
       const data = imageNames.map(imageName => {
-        const metric = this.metricsData.find(m => m.imageName === imageName && m.method === method);
+        const metric = this.findMetric(imageName, method);
         return metric ? metric.psnr : 0;
       });
       return {
@@ -83,7 +86,7 @@ export class DashboardComponent {
     // DeltaE Chart Data (Lower is better)
     const deltaEDatasets = methods.map((method, index) => {
       const data = imageNames.map(imageName => {
-        const metric = this.metricsData.find(m => m.imageName === imageName && m.method === method);
+        const metric = this.findMetric(imageName, method);
         return metric ? metric.deltaE : 0;
       });
       return {
@@ -112,6 +115,10 @@ export class DashboardComponent {
         }
       }
     };
+  }
+
+  private findMetric(imageName: string, method: string): ImageMetric | undefined {
+    return this.metricsData.find(m => m.imageName === imageName && m.method === method);
   }
 
   getChartColor(index: number): string {
