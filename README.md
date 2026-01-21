@@ -1,6 +1,6 @@
 # Image Quality Metrics Visualization Dashboard
 
-圖像品質指標視覺化儀表板，用於比較 PWGCM (Baseline) 與 HSV_Improve 模型在 eval15 數據集上的表現。
+圖像品質指標視覺化儀表板，用於視覺化和分析各種圖像品質指標的分析結果。
 
 ## 使用方式
 
