@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FileUploadModule } from 'primeng/fileupload';
+import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { ChartData, ChartOptions } from 'chart.js';
 import { ImageMetric } from '../../models/image-metrics.model';
 
 @Component({
@@ -22,19 +23,22 @@ import { ImageMetric } from '../../models/image-metrics.model';
 })
 export class DashboardComponent {
   metricsData: ImageMetric[] = [];
-  psnrChartData: any;
-  deltaEChartData: any;
-  chartOptions: any;
+  psnrChartData: ChartData<'bar'> | undefined;
+  deltaEChartData: ChartData<'bar'> | undefined;
+  chartOptions: ChartOptions<'bar'> | undefined;
 
-  onFileUpload(event: any): void {
+  onFileUpload(event: FileSelectEvent): void {
     const file = event.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
         try {
-          const jsonData = JSON.parse(e.target.result);
-          this.metricsData = jsonData.images || [];
-          this.prepareChartData();
+          const result = e.target?.result;
+          if (typeof result === 'string') {
+            const jsonData = JSON.parse(result);
+            this.metricsData = jsonData.images || [];
+            this.prepareChartData();
+          }
         } catch (error) {
           console.error('Error parsing JSON file:', error);
         }
