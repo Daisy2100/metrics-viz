@@ -142,6 +142,35 @@ npm run build
 ng build --configuration production
 ```
 
+## GitHub Pages 部署
+
+此專案設定為自動部署到 GitHub Pages 的自訂網域 (daisy2100.com)。
+
+### 設定步驟
+
+1. **啟用 GitHub Pages**：
+   - 前往 [Repository Settings > Pages](https://github.com/Daisy2100/metrics-viz/settings/pages)
+   - Source: 選擇 "GitHub Actions"
+   
+2. **設定自訂網域** (選用)：
+   - 如果使用自訂網域 (如 daisy2100.com)，在 DNS 設定中新增：
+     - A record 指向 GitHub Pages IP
+     - CNAME record 指向 `Daisy2100.github.io`
+   - 在 Repository Settings > Pages 中輸入自訂網域
+
+3. **自動部署**：
+   - 當推送到 `main` 分支時，GitHub Actions 會自動：
+     - 建構 Angular 應用程式
+     - 上傳建構產物
+     - 部署到 GitHub Pages
+
+### 手動觸發部署
+
+如果需要手動觸發部署，可以：
+1. 前往 [Actions](https://github.com/Daisy2100/metrics-viz/actions)
+2. 選擇 "Deploy Angular to GitHub Pages" 工作流程
+3. 點擊 "Run workflow"
+
 ---
 
 *Built with Angular 19, PrimeNG 19, and Chart.js 4.5*
