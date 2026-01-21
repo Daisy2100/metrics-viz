@@ -9,6 +9,8 @@ import { RouterModule } from '@angular/router';
   styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
+  companyName = 'Daisy2100';
+
   get currentYear(): number {
     return new Date().getFullYear();
   }
