@@ -60,9 +60,13 @@ export class MetricsComponent implements OnInit {
   ciede2000ReferenceChartData: any;
   angularErrorOriginalChartData: any;
   angularErrorReferenceChartData: any;
-  radarChartData: any;
+  radarChartData: any;  // Image Quality
+  radarColorOriginalChartData: any;  // Color vs Original
+  radarColorReferenceChartData: any;  // Color vs Reference
+  higherBetterAreaChartData: any;  // Area Chart
   chartOptions: any;
   radarChartOptions: any;
+  higherBetterAreaChartOptions: any;
 
   constructor(
     private metricsService: MetricsService,
@@ -159,6 +163,24 @@ export class MetricsComponent implements OnInit {
         }
       }
     };
+
+    this.higherBetterAreaChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top' as const,
+        },
+        title: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    };
   }
 
   prepareChartData(): void {
@@ -177,6 +199,9 @@ export class MetricsComponent implements OnInit {
         this.angularErrorOriginalChartData = null;
         this.angularErrorReferenceChartData = null;
         this.radarChartData = null;
+        this.radarColorOriginalChartData = null;
+        this.radarColorReferenceChartData = null;
+        this.higherBetterAreaChartData = null;
         return;
     }
 
@@ -394,29 +419,6 @@ export class MetricsComponent implements OnInit {
       }]
     };
 
-    // Radar Chart - Overall Capability Comparison (Dynamic)
-    // Find absolute max/min across all averaged models for normalization
-    const maxValues = {
-      psnr: Math.max(...averagedMetrics.map(m => m.metrics.psnr)),
-      ssim: 1, // SSIM is always max 1
-    };
-
-    // For lower is better, we generally need the Min value (best performance)
-    const minValues = {
-      niqe: Math.min(...averagedMetrics.map(m => m.metrics.niqe)),
-      brisque: Math.min(...averagedMetrics.map(m => m.metrics.brisque)),
-      loe: Math.min(...averagedMetrics.map(m => m.metrics.loe)),
-      lpips: Math.min(...averagedMetrics.map(m => m.metrics.lpips)),
-      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
-      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
-    };
-
-    // Helper for Higher is Better: val / max
-    const normalizeHigherBetter = (val: number, max: number) => {
-        if (max <= 0) return 0;
-        return val / max;
-    };
-
     // Helper for Lower is Better: min / val (Efficiency relative to best observed)
     // If Val is 0 (perfect), Score is 1. IF Val > 0, Score = Min / Val.
     // This ensures that the best model (== Min) always gets 1.0 (Full Radar).
@@ -428,7 +430,43 @@ export class MetricsComponent implements OnInit {
         return min / val;
     };
 
-    const radarDatasets = averagedMetrics.map((am, index) => {
+    // ============================================
+    // 1️⃣ Area Chart - Higher is Better (PSNR & SSIM)
+    // ============================================
+    const areaDatasets = averagedMetrics.map((am, index) => {
+        const color = baseColors[index % baseColors.length];
+        const borderColor = color.replace('0.7', '1');
+        const bgColor = color.replace('0.7', '0.3');
+
+        return {
+            label: am.model,
+            data: [am.metrics.psnr, am.metrics.ssim],
+            borderColor: borderColor,
+            backgroundColor: bgColor,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        };
+    });
+
+    this.higherBetterAreaChartData = {
+      labels: ['PSNR', 'SSIM'],
+      datasets: areaDatasets
+    };
+
+    // ============================================
+    // 2️⃣ Radar Chart - Image Quality (4 metrics)
+    // ============================================
+    const minValuesQuality = {
+      niqe: Math.min(...averagedMetrics.map(m => m.metrics.niqe)),
+      brisque: Math.min(...averagedMetrics.map(m => m.metrics.brisque)),
+      loe: Math.min(...averagedMetrics.map(m => m.metrics.loe)),
+      lpips: Math.min(...averagedMetrics.map(m => m.metrics.lpips))
+    };
+
+    const radarQualityDatasets = averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
@@ -436,14 +474,10 @@ export class MetricsComponent implements OnInit {
         return {
             label: am.model,
             data: [
-                normalizeHigherBetter(am.metrics.psnr, maxValues.psnr),
-                normalizeHigherBetter(am.metrics.ssim, maxValues.ssim),
-                normalizeLowerBetter(am.metrics.niqe, minValues.niqe),
-                normalizeLowerBetter(am.metrics.brisque, minValues.brisque),
-                normalizeLowerBetter(am.metrics.loe, minValues.loe),
-                normalizeLowerBetter(am.metrics.lpips, minValues.lpips),
-                normalizeLowerBetter(am.metrics.delta_e76_vs_original.mean, minValues.deltaE),
-                normalizeLowerBetter(am.metrics.angular_error_vs_original.mean, minValues.angularError)
+                normalizeLowerBetter(am.metrics.niqe, minValuesQuality.niqe),
+                normalizeLowerBetter(am.metrics.brisque, minValuesQuality.brisque),
+                normalizeLowerBetter(am.metrics.loe, minValuesQuality.loe),
+                normalizeLowerBetter(am.metrics.lpips, minValuesQuality.lpips)
             ],
             backgroundColor: bgColor,
             borderColor: borderColor,
@@ -452,8 +486,72 @@ export class MetricsComponent implements OnInit {
     });
 
     this.radarChartData = {
-      labels: ['PSNR ↑', 'SSIM ↑', 'NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓', 'Delta E ↓', 'Angular Error ↓'],
-      datasets: radarDatasets
+      labels: ['NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓'],
+      datasets: radarQualityDatasets
+    };
+
+    // ============================================
+    // 3️⃣ Radar Chart - Color Accuracy (vs Original)
+    // ============================================
+    const minValuesColorOriginal = {
+      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
+      ciede2000: Math.min(...averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean)),
+      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
+    };
+
+    const radarColorOriginalDatasets = averagedMetrics.map((am, index) => {
+        const color = baseColors[index % baseColors.length];
+        const borderColor = color.replace('0.7', '1');
+        const bgColor = color.replace('0.7', '0.2');
+
+        return {
+            label: am.model,
+            data: [
+                normalizeLowerBetter(am.metrics.delta_e76_vs_original.mean, minValuesColorOriginal.deltaE),
+                normalizeLowerBetter(am.metrics.ciede2000_vs_original.mean, minValuesColorOriginal.ciede2000),
+                normalizeLowerBetter(am.metrics.angular_error_vs_original.mean, minValuesColorOriginal.angularError)
+            ],
+            backgroundColor: bgColor,
+            borderColor: borderColor,
+            borderWidth: 2
+        };
+    });
+
+    this.radarColorOriginalChartData = {
+      labels: ['Delta E ↓', 'CIEDE2000 ↓', 'Angular Error ↓'],
+      datasets: radarColorOriginalDatasets
+    };
+
+    // ============================================
+    // 4️⃣ Radar Chart - Color Accuracy (vs Reference)
+    // ============================================
+    const minValuesColorReference = {
+      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean)),
+      ciede2000: Math.min(...averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean)),
+      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean))
+    };
+
+    const radarColorReferenceDatasets = averagedMetrics.map((am, index) => {
+        const color = baseColors[index % baseColors.length];
+        const borderColor = color.replace('0.7', '1');
+        const bgColor = color.replace('0.7', '0.2');
+
+        return {
+            label: am.model,
+            data: [
+                normalizeLowerBetter(am.metrics.delta_e76_vs_reference.mean, minValuesColorReference.deltaE),
+                normalizeLowerBetter(am.metrics.ciede2000_vs_reference.mean, minValuesColorReference.ciede2000),
+                normalizeLowerBetter(am.metrics.angular_error_vs_reference.mean, minValuesColorReference.angularError)
+            ],
+            backgroundColor: bgColor,
+            borderColor: borderColor,
+            borderWidth: 2
+        };
+    });
+
+    this.radarColorReferenceChartData = {
+      labels: ['Delta E ↓', 'CIEDE2000 ↓', 'Angular Error ↓'],
+      datasets: radarColorReferenceDatasets
     };
   }
 
@@ -503,7 +601,10 @@ export class MetricsComponent implements OnInit {
     // Get all chart canvas elements
     const charts = document.querySelectorAll('p-chart canvas');
     const chartNames = [
-      'radar-overall-comparison',
+      'area-higher-is-better',
+      'radar-image-quality',
+      'radar-color-original',
+      'radar-color-reference',
       'psnr-comparison',
       'ssim-comparison',
       'niqe-comparison',
