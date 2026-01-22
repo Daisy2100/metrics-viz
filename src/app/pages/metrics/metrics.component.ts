@@ -553,29 +553,6 @@ export class MetricsComponent implements OnInit {
       datasets: radarColorReferenceDatasets
     };
 
-    // Area Chart - Higher is Better Metrics (PSNR & SSIM)
-    const areaDatasets = averagedMetrics.map((am, index) => {
-        const color = baseColors[index % baseColors.length];
-        const borderColor = color.replace('0.7', '1');
-        const bgColor = color.replace('0.7', '0.3');
-
-        return {
-            label: am.model,
-            data: [am.metrics.psnr, am.metrics.ssim],
-            borderColor: borderColor,
-            backgroundColor: bgColor,
-            fill: true,
-            tension: 0.4,
-            borderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6
-        };
-    });
-
-    this.higherBetterAreaChartData = {
-      labels: ['PSNR', 'SSIM'],
-      datasets: areaDatasets
-    };
   }
 
   getModelNames(): string[] {
