@@ -22,18 +22,18 @@ interface ViewOption {
 interface AveragedMetric {
   model: string;
   metrics: {
-    psnr: number;
-    ssim: number;
-    niqe: number;
-    brisque: number;
-    loe: number;
-    lpips: number;
-    delta_e76_vs_original: { mean: number };
-    delta_e76_vs_reference: { mean: number };
-    ciede2000_vs_original: { mean: number };
-    ciede2000_vs_reference: { mean: number };
-    angular_error_vs_original: { mean: number };
-    angular_error_vs_reference: { mean: number };
+    psnr?: number;
+    ssim?: number;
+    niqe?: number;
+    brisque?: number;
+    loe?: number;
+    lpips?: number;
+    delta_e76_vs_original?: { mean: number };
+    delta_e76_vs_reference?: { mean: number };
+    ciede2000_vs_original?: { mean: number };
+    ciede2000_vs_reference?: { mean: number };
+    angular_error_vs_original?: { mean: number };
+    angular_error_vs_reference?: { mean: number };
   };
 }
 
@@ -241,41 +241,37 @@ export class MetricsComponent implements OnInit {
       const metricsList = groupedMetrics[model];
       const count = metricsList.length;
 
-      const sum = metricsList.reduce((acc, curr) => ({
-        psnr: acc.psnr + curr.metrics.psnr,
-        ssim: acc.ssim + curr.metrics.ssim,
-        niqe: acc.niqe + curr.metrics.niqe,
-        brisque: acc.brisque + curr.metrics.brisque,
-        loe: acc.loe + curr.metrics.loe,
-        lpips: acc.lpips + curr.metrics.lpips,
-        delta_e76_vs_original: acc.delta_e76_vs_original + curr.metrics.delta_e76_vs_original.mean,
-        delta_e76_vs_reference: acc.delta_e76_vs_reference + curr.metrics.delta_e76_vs_reference.mean,
-        ciede2000_vs_original: acc.ciede2000_vs_original + curr.metrics.ciede2000_vs_original.mean,
-        ciede2000_vs_reference: acc.ciede2000_vs_reference + curr.metrics.ciede2000_vs_reference.mean,
-        angular_error_vs_original: acc.angular_error_vs_original + curr.metrics.angular_error_vs_original.mean,
-        angular_error_vs_reference: acc.angular_error_vs_reference + curr.metrics.angular_error_vs_reference.mean,
-      }), {
-        psnr: 0, ssim: 0, niqe: 0, brisque: 0, loe: 0, lpips: 0,
-        delta_e76_vs_original: 0, delta_e76_vs_reference: 0,
-        ciede2000_vs_original: 0, ciede2000_vs_reference: 0,
-        angular_error_vs_original: 0, angular_error_vs_reference: 0
-      });
+      // Helper function to safely average a metric
+      const safeAverage = (getValue: (m: ImageMetric) => number | undefined): number | undefined => {
+        const values = metricsList
+          .map(getValue)
+          .filter((v): v is number => v !== undefined && v !== null && !isNaN(v));
+        
+        if (values.length === 0) return undefined;
+        return values.reduce((a, b) => a + b, 0) / values.length;
+      };
+
+      // Helper function to create mean metric object
+      const createMeanMetric = (getValue: (m: ImageMetric) => number | undefined): { mean: number } | undefined => {
+        const avg = safeAverage(getValue);
+        return avg !== undefined ? { mean: avg } : undefined;
+      };
 
       return {
         model,
         metrics: {
-          psnr: sum.psnr / count,
-          ssim: sum.ssim / count,
-          niqe: sum.niqe / count,
-          brisque: sum.brisque / count,
-          loe: sum.loe / count,
-          lpips: sum.lpips / count,
-          delta_e76_vs_original: { mean: sum.delta_e76_vs_original / count },
-          delta_e76_vs_reference: { mean: sum.delta_e76_vs_reference / count },
-          ciede2000_vs_original: { mean: sum.ciede2000_vs_original / count },
-          ciede2000_vs_reference: { mean: sum.ciede2000_vs_reference / count },
-          angular_error_vs_original: { mean: sum.angular_error_vs_original / count },
-          angular_error_vs_reference: { mean: sum.angular_error_vs_reference / count }
+          psnr: safeAverage(m => m.metrics.psnr),
+          ssim: safeAverage(m => m.metrics.ssim),
+          niqe: safeAverage(m => m.metrics.niqe),
+          brisque: safeAverage(m => m.metrics.brisque),
+          loe: safeAverage(m => m.metrics.loe),
+          lpips: safeAverage(m => m.metrics.lpips),
+          delta_e76_vs_original: createMeanMetric(m => m.metrics.delta_e76_vs_original?.mean),
+          delta_e76_vs_reference: createMeanMetric(m => m.metrics.delta_e76_vs_reference?.mean),
+          ciede2000_vs_original: createMeanMetric(m => m.metrics.ciede2000_vs_original?.mean),
+          ciede2000_vs_reference: createMeanMetric(m => m.metrics.ciede2000_vs_reference?.mean),
+          angular_error_vs_original: createMeanMetric(m => m.metrics.angular_error_vs_original?.mean),
+          angular_error_vs_reference: createMeanMetric(m => m.metrics.angular_error_vs_reference?.mean)
         }
       };
     });
@@ -295,149 +291,213 @@ export class MetricsComponent implements OnInit {
     const chartColors = getColors(models.length);
     const borderColors = chartColors.map(c => c.replace('0.7', '1'));
 
-    // PSNR Chart (Higher is better)
-    this.psnrChartData = {
-      labels: models,
-      datasets: [{
-        label: 'PSNR (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.psnr),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
+    // Helper function to check if any model has this metric
+    const hasMetric = (getter: (m: AveragedMetric) => number | { mean: number } | undefined): boolean => {
+      return this.averagedMetrics.some(m => {
+        const val = getter(m);
+        return val !== undefined && val !== null && (typeof val === 'number' ? !isNaN(val) : !isNaN(val.mean));
+      });
     };
+
+    // Helper function to get metric value safely
+    const getMetricValue = (m: AveragedMetric, getter: (m: AveragedMetric) => number | { mean: number } | undefined): number | null => {
+      const val = getter(m);
+      if (val === undefined || val === null) return null;
+      if (typeof val === 'number') return isNaN(val) ? null : val;
+      return isNaN(val.mean) ? null : val.mean;
+    };
+
+    // PSNR Chart (Higher is better)
+    if (hasMetric(m => m.metrics.psnr)) {
+      this.psnrChartData = {
+        labels: models,
+        datasets: [{
+          label: 'PSNR (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.psnr)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.psnrChartData = null;
+    }
 
     // SSIM Chart (Higher is better)
-    this.ssimChartData = {
-      labels: models,
-      datasets: [{
-        label: 'SSIM (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.ssim),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.ssim)) {
+      this.ssimChartData = {
+        labels: models,
+        datasets: [{
+          label: 'SSIM (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.ssim)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.ssimChartData = null;
+    }
 
     // NIQE Chart (Lower is better)
-    this.niqeChartData = {
-      labels: models,
-      datasets: [{
-        label: 'NIQE (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.niqe),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.niqe)) {
+      this.niqeChartData = {
+        labels: models,
+        datasets: [{
+          label: 'NIQE (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.niqe)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.niqeChartData = null;
+    }
 
     // BRISQUE Chart (Lower is better)
-    this.brisqueChartData = {
-      labels: models,
-      datasets: [{
-        label: 'BRISQUE (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.brisque),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.brisque)) {
+      this.brisqueChartData = {
+        labels: models,
+        datasets: [{
+          label: 'BRISQUE (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.brisque)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.brisqueChartData = null;
+    }
 
     // LOE Chart (Lower is better)
-    this.loeChartData = {
-      labels: models,
-      datasets: [{
-        label: 'LOE (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.loe),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.loe)) {
+      this.loeChartData = {
+        labels: models,
+        datasets: [{
+          label: 'LOE (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.loe)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.loeChartData = null;
+    }
 
     // LPIPS Chart (Lower is better)
-    this.lpipsChartData = {
-      labels: models,
-      datasets: [{
-        label: 'LPIPS (Avg)',
-        data: this.averagedMetrics.map(m => m.metrics.lpips),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.lpips)) {
+      this.lpipsChartData = {
+        labels: models,
+        datasets: [{
+          label: 'LPIPS (Avg)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.lpips)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.lpipsChartData = null;
+    }
 
     // Delta E76 vs Original Chart (Lower is better)
-    this.deltaE76OriginalChartData = {
-      labels: models,
-      datasets: [{
-        label: 'Delta E76 vs Original (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.delta_e76_vs_original)) {
+      this.deltaE76OriginalChartData = {
+        labels: models,
+        datasets: [{
+          label: 'Delta E76 vs Original (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.delta_e76_vs_original)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.deltaE76OriginalChartData = null;
+    }
 
     // Delta E76 vs Reference Chart (Lower is better)
-    this.deltaE76ReferenceChartData = {
-      labels: models,
-      datasets: [{
-        label: 'Delta E76 vs Reference (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.delta_e76_vs_reference)) {
+      this.deltaE76ReferenceChartData = {
+        labels: models,
+        datasets: [{
+          label: 'Delta E76 vs Reference (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.delta_e76_vs_reference)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.deltaE76ReferenceChartData = null;
+    }
 
     // CIEDE2000 vs Original Chart (Lower is better)
-    this.ciede2000OriginalChartData = {
-      labels: models,
-      datasets: [{
-        label: 'CIEDE2000 vs Original (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.ciede2000_vs_original)) {
+      this.ciede2000OriginalChartData = {
+        labels: models,
+        datasets: [{
+          label: 'CIEDE2000 vs Original (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.ciede2000_vs_original)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.ciede2000OriginalChartData = null;
+    }
 
     // CIEDE2000 vs Reference Chart (Lower is better)
-    this.ciede2000ReferenceChartData = {
-      labels: models,
-      datasets: [{
-        label: 'CIEDE2000 vs Reference (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.ciede2000_vs_reference)) {
+      this.ciede2000ReferenceChartData = {
+        labels: models,
+        datasets: [{
+          label: 'CIEDE2000 vs Reference (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.ciede2000_vs_reference)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.ciede2000ReferenceChartData = null;
+    }
 
     // Angular Error vs Original Chart (Lower is better)
-    this.angularErrorOriginalChartData = {
-      labels: models,
-      datasets: [{
-        label: 'Angular Error vs Original (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.angular_error_vs_original)) {
+      this.angularErrorOriginalChartData = {
+        labels: models,
+        datasets: [{
+          label: 'Angular Error vs Original (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.angular_error_vs_original)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.angularErrorOriginalChartData = null;
+    }
 
     // Angular Error vs Reference Chart (Lower is better)
-    this.angularErrorReferenceChartData = {
-      labels: models,
-      datasets: [{
-        label: 'Angular Error vs Reference (Avg Mean)',
-        data: this.averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean),
-        backgroundColor: chartColors,
-        borderColor: borderColors,
-        borderWidth: 1
-      }]
-    };
+    if (hasMetric(m => m.metrics.angular_error_vs_reference)) {
+      this.angularErrorReferenceChartData = {
+        labels: models,
+        datasets: [{
+          label: 'Angular Error vs Reference (Avg Mean)',
+          data: this.averagedMetrics.map(m => getMetricValue(m, m => m.metrics.angular_error_vs_reference)),
+          backgroundColor: chartColors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      };
+    } else {
+      this.angularErrorReferenceChartData = null;
+    }
 
     // Helper for Lower is Better: min / val (Efficiency relative to best observed)
     // If val is 0 (perfect), Score is 1. If val > 0, Score = min / val.
@@ -452,14 +512,24 @@ export class MetricsComponent implements OnInit {
     // ============================================
     // 1️⃣ Area Chart - Higher is Better (PSNR & SSIM)
     // ============================================
-    const areaDatasets = this.averagedMetrics.map((am, index) => {
+    const hasPsnrOrSsim = hasMetric(m => m.metrics.psnr) || hasMetric(m => m.metrics.ssim);
+    if (hasPsnrOrSsim) {
+      const labels: string[] = [];
+      if (hasMetric(m => m.metrics.psnr)) labels.push('PSNR');
+      if (hasMetric(m => m.metrics.ssim)) labels.push('SSIM');
+
+      const areaDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.3');
 
+        const data: (number | null)[] = [];
+        if (hasMetric(m => m.metrics.psnr)) data.push(getMetricValue(am, m => m.metrics.psnr));
+        if (hasMetric(m => m.metrics.ssim)) data.push(getMetricValue(am, m => m.metrics.ssim));
+
         return {
             label: am.model,
-            data: [am.metrics.psnr, am.metrics.ssim],
+            data: data,
             borderColor: borderColor,
             backgroundColor: bgColor,
             fill: true,
@@ -468,110 +538,188 @@ export class MetricsComponent implements OnInit {
             pointRadius: 4,
             pointHoverRadius: 6
         };
-    });
+      });
 
-    this.higherBetterAreaChartData = {
-      labels: ['PSNR', 'SSIM'],
-      datasets: areaDatasets
-    };
+      this.higherBetterAreaChartData = {
+        labels: labels,
+        datasets: areaDatasets
+      };
+    } else {
+      this.higherBetterAreaChartData = null;
+    }
 
     // ============================================
     // 2️⃣ Radar Chart - Image Quality (4 metrics)
     // ============================================
-    const minValuesQuality = {
-      niqe: Math.min(...this.averagedMetrics.map(m => m.metrics.niqe)),
-      brisque: Math.min(...this.averagedMetrics.map(m => m.metrics.brisque)),
-      loe: Math.min(...this.averagedMetrics.map(m => m.metrics.loe)),
-      lpips: Math.min(...this.averagedMetrics.map(m => m.metrics.lpips))
-    };
+    const qualityMetrics = ['niqe', 'brisque', 'loe', 'lpips'] as const;
+    const hasQualityMetrics = qualityMetrics.some(metric => 
+      hasMetric(m => m.metrics[metric])
+    );
 
-    const radarQualityDatasets = this.averagedMetrics.map((am, index) => {
+    if (hasQualityMetrics) {
+      // Build labels and data dynamically based on available metrics
+      const availableQualityMetrics = qualityMetrics.filter(metric => 
+        hasMetric(m => m.metrics[metric])
+      );
+      
+      const qualityLabels = availableQualityMetrics.map(metric => {
+        const labelMap: Record<string, string> = {
+          'niqe': 'NIQE ↓',
+          'brisque': 'BRISQUE ↓',
+          'loe': 'LOE ↓',
+          'lpips': 'LPIPS ↓'
+        };
+        return labelMap[metric];
+      });
+
+      const minValuesQuality: Record<string, number> = {};
+      availableQualityMetrics.forEach(metric => {
+        const values = this.averagedMetrics
+          .map(m => getMetricValue(m, m => m.metrics[metric]))
+          .filter((v): v is number => v !== null);
+        minValuesQuality[metric] = values.length > 0 ? Math.min(...values) : 0;
+      });
+
+      const radarQualityDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
 
+        const data = availableQualityMetrics.map(metric => {
+          const val = getMetricValue(am, m => m.metrics[metric]);
+          return val !== null ? normalizeLowerBetter(val, minValuesQuality[metric]) : 0;
+        });
+
         return {
             label: am.model,
-            data: [
-                normalizeLowerBetter(am.metrics.niqe, minValuesQuality.niqe),
-                normalizeLowerBetter(am.metrics.brisque, minValuesQuality.brisque),
-                normalizeLowerBetter(am.metrics.loe, minValuesQuality.loe),
-                normalizeLowerBetter(am.metrics.lpips, minValuesQuality.lpips)
-            ],
+            data: data,
             backgroundColor: bgColor,
             borderColor: borderColor,
             borderWidth: 2
         };
-    });
+      });
 
-    this.radarChartData = {
-      labels: ['NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓'],
-      datasets: radarQualityDatasets
-    };
+      this.radarChartData = {
+        labels: qualityLabels,
+        datasets: radarQualityDatasets
+      };
+    } else {
+      this.radarChartData = null;
+    }
 
     // ============================================
     // 3️⃣ Radar Chart - Color Accuracy (vs Original)
     // ============================================
-    const minValuesColorOriginal = {
-      deltaE: Math.min(...this.averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
-      ciede2000: Math.min(...this.averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean)),
-      angularError: Math.min(...this.averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
-    };
+    const colorOriginalMetrics = ['delta_e76_vs_original', 'ciede2000_vs_original', 'angular_error_vs_original'] as const;
+    const hasColorOriginalMetrics = colorOriginalMetrics.some(metric => 
+      hasMetric(m => m.metrics[metric])
+    );
 
-    const radarColorOriginalDatasets = this.averagedMetrics.map((am, index) => {
+    if (hasColorOriginalMetrics) {
+      const availableColorOriginalMetrics = colorOriginalMetrics.filter(metric => 
+        hasMetric(m => m.metrics[metric])
+      );
+      
+      const colorOriginalLabels = availableColorOriginalMetrics.map(metric => {
+        const labelMap: Record<string, string> = {
+          'delta_e76_vs_original': 'Delta E ↓',
+          'ciede2000_vs_original': 'CIEDE2000 ↓',
+          'angular_error_vs_original': 'Angular Error ↓'
+        };
+        return labelMap[metric];
+      });
+
+      const minValuesColorOriginal: Record<string, number> = {};
+      availableColorOriginalMetrics.forEach(metric => {
+        const values = this.averagedMetrics
+          .map(m => getMetricValue(m, m => m.metrics[metric]))
+          .filter((v): v is number => v !== null);
+        minValuesColorOriginal[metric] = values.length > 0 ? Math.min(...values) : 0;
+      });
+
+      const radarColorOriginalDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
 
+        const data = availableColorOriginalMetrics.map(metric => {
+          const val = getMetricValue(am, m => m.metrics[metric]);
+          return val !== null ? normalizeLowerBetter(val, minValuesColorOriginal[metric]) : 0;
+        });
+
         return {
             label: am.model,
-            data: [
-                normalizeLowerBetter(am.metrics.delta_e76_vs_original.mean, minValuesColorOriginal.deltaE),
-                normalizeLowerBetter(am.metrics.ciede2000_vs_original.mean, minValuesColorOriginal.ciede2000),
-                normalizeLowerBetter(am.metrics.angular_error_vs_original.mean, minValuesColorOriginal.angularError)
-            ],
+            data: data,
             backgroundColor: bgColor,
             borderColor: borderColor,
             borderWidth: 2
         };
-    });
+      });
 
-    this.radarColorOriginalChartData = {
-      labels: ['Delta E ↓', 'CIEDE2000 ↓', 'Angular Error ↓'],
-      datasets: radarColorOriginalDatasets
-    };
+      this.radarColorOriginalChartData = {
+        labels: colorOriginalLabels,
+        datasets: radarColorOriginalDatasets
+      };
+    } else {
+      this.radarColorOriginalChartData = null;
+    }
 
     // ============================================
     // 4️⃣ Radar Chart - Color Accuracy (vs Reference)
     // ============================================
-    const minValuesColorReference = {
-      deltaE: Math.min(...this.averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean)),
-      ciede2000: Math.min(...this.averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean)),
-      angularError: Math.min(...this.averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean))
-    };
+    const colorReferenceMetrics = ['delta_e76_vs_reference', 'ciede2000_vs_reference', 'angular_error_vs_reference'] as const;
+    const hasColorReferenceMetrics = colorReferenceMetrics.some(metric => 
+      hasMetric(m => m.metrics[metric])
+    );
 
-    const radarColorReferenceDatasets = this.averagedMetrics.map((am, index) => {
+    if (hasColorReferenceMetrics) {
+      const availableColorReferenceMetrics = colorReferenceMetrics.filter(metric => 
+        hasMetric(m => m.metrics[metric])
+      );
+      
+      const colorReferenceLabels = availableColorReferenceMetrics.map(metric => {
+        const labelMap: Record<string, string> = {
+          'delta_e76_vs_reference': 'Delta E ↓',
+          'ciede2000_vs_reference': 'CIEDE2000 ↓',
+          'angular_error_vs_reference': 'Angular Error ↓'
+        };
+        return labelMap[metric];
+      });
+
+      const minValuesColorReference: Record<string, number> = {};
+      availableColorReferenceMetrics.forEach(metric => {
+        const values = this.averagedMetrics
+          .map(m => getMetricValue(m, m => m.metrics[metric]))
+          .filter((v): v is number => v !== null);
+        minValuesColorReference[metric] = values.length > 0 ? Math.min(...values) : 0;
+      });
+
+      const radarColorReferenceDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
 
+        const data = availableColorReferenceMetrics.map(metric => {
+          const val = getMetricValue(am, m => m.metrics[metric]);
+          return val !== null ? normalizeLowerBetter(val, minValuesColorReference[metric]) : 0;
+        });
+
         return {
             label: am.model,
-            data: [
-                normalizeLowerBetter(am.metrics.delta_e76_vs_reference.mean, minValuesColorReference.deltaE),
-                normalizeLowerBetter(am.metrics.ciede2000_vs_reference.mean, minValuesColorReference.ciede2000),
-                normalizeLowerBetter(am.metrics.angular_error_vs_reference.mean, minValuesColorReference.angularError)
-            ],
+            data: data,
             backgroundColor: bgColor,
             borderColor: borderColor,
             borderWidth: 2
         };
-    });
+      });
 
-    this.radarColorReferenceChartData = {
-      labels: ['Delta E ↓', 'CIEDE2000 ↓', 'Angular Error ↓'],
-      datasets: radarColorReferenceDatasets
-    };
+      this.radarColorReferenceChartData = {
+        labels: colorReferenceLabels,
+        datasets: radarColorReferenceDatasets
+      };
+    } else {
+      this.radarColorReferenceChartData = null;
+    }
 
   }
 
@@ -589,6 +737,32 @@ export class MetricsComponent implements OnInit {
 
   showCharts(): boolean {
     return this.viewMode === 'chart' || this.viewMode === 'both';
+  }
+
+  /**
+   * Check if any averaged metric has a specific field
+   */
+  hasMetricColumn(metricName: keyof AveragedMetric['metrics']): boolean {
+    return this.averagedMetrics.some(m => {
+      const val = m.metrics[metricName];
+      return val !== undefined && val !== null && 
+        (typeof val === 'number' ? !isNaN(val) : !isNaN(val.mean));
+    });
+  }
+
+  /**
+   * Format metric value for display in the table
+   * @param value The metric value (number or object with mean property)
+   * @returns Formatted string or 'N/A' if value is undefined
+   */
+  formatMetricValue(value: number | { mean: number } | undefined): string {
+    if (value === undefined || value === null) return 'N/A';
+    
+    const numValue = typeof value === 'number' ? value : value.mean;
+    
+    if (isNaN(numValue)) return 'N/A';
+    
+    return numValue.toFixed(4);
   }
 
   /**

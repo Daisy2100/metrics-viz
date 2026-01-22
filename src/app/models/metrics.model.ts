@@ -9,20 +9,21 @@ export interface MetricValue {
 
 /**
  * Represents all metrics for an image
+ * All fields are optional to support cases with partial metrics
  */
 export interface Metrics {
-  niqe: number;
-  brisque: number;
-  delta_e76_vs_original: MetricValue;
-  ciede2000_vs_original: MetricValue;
-  angular_error_vs_original: MetricValue;
-  loe: number;
-  psnr: number;
-  ssim: number;
-  lpips: number;
-  delta_e76_vs_reference: MetricValue;
-  ciede2000_vs_reference: MetricValue;
-  angular_error_vs_reference: MetricValue;
+  niqe?: number;
+  brisque?: number;
+  delta_e76_vs_original?: MetricValue;
+  ciede2000_vs_original?: MetricValue;
+  angular_error_vs_original?: MetricValue;
+  loe?: number;
+  psnr?: number;
+  ssim?: number;
+  lpips?: number;
+  delta_e76_vs_reference?: MetricValue;
+  ciede2000_vs_reference?: MetricValue;
+  angular_error_vs_reference?: MetricValue;
 }
 
 /**
