@@ -420,13 +420,12 @@ export class MetricsComponent implements OnInit {
     };
 
     // Helper for Lower is Better: min / val (Efficiency relative to best observed)
-    // If Val is 0 (perfect), Score is 1. IF Val > 0, Score = Min / Val.
-    // This ensures that the best model (== Min) always gets 1.0 (Full Radar).
+    // If val is 0 (perfect), Score is 1. If val > 0, Score = min / val.
+    // This ensures that the best model (== min) always gets 1.0 (Full Radar).
     // And worse models get < 1.0.
     const normalizeLowerBetter = (val: number, min: number) => {
         if (val <= 0) return 1; // 0 error is perfect score
-        if (min === 0) return 0; // If best is 0, and current is > 0, score is 0 relative to perfection?
-                                 // Or we can treat it differently. Usually errors aren't exactly 0.
+        if (min === 0) return 0; // If best is 0, and current is > 0, score is 0
         return min / val;
     };
 
