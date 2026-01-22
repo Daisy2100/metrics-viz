@@ -19,6 +19,24 @@ interface ViewOption {
   value: ViewMode;
 }
 
+interface AveragedMetric {
+  model: string;
+  metrics: {
+    psnr: number;
+    ssim: number;
+    niqe: number;
+    brisque: number;
+    loe: number;
+    lpips: number;
+    delta_e76_vs_original: { mean: number };
+    delta_e76_vs_reference: { mean: number };
+    ciede2000_vs_original: { mean: number };
+    ciede2000_vs_reference: { mean: number };
+    angular_error_vs_original: { mean: number };
+    angular_error_vs_reference: { mean: number };
+  };
+}
+
 @Component({
   selector: 'app-metrics',
   standalone: true,
@@ -39,6 +57,7 @@ interface ViewOption {
 })
 export class MetricsComponent implements OnInit {
   metrics: ImageMetric[] = [];
+  averagedMetrics: AveragedMetric[] = [];
   loading: boolean = false;
   viewMode: ViewMode = 'both';
   viewOptions: ViewOption[] = [
@@ -202,6 +221,7 @@ export class MetricsComponent implements OnInit {
         this.radarColorOriginalChartData = null;
         this.radarColorReferenceChartData = null;
         this.higherBetterAreaChartData = null;
+        this.averagedMetrics = [];
         return;
     }
 
@@ -217,7 +237,7 @@ export class MetricsComponent implements OnInit {
     const models = Object.keys(groupedMetrics);
 
     // 2. Calculate averages for each model
-    const averagedMetrics = models.map(model => {
+    this.averagedMetrics = models.map(model => {
       const metricsList = groupedMetrics[model];
       const count = metricsList.length;
 
@@ -280,7 +300,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'PSNR (Avg)',
-        data: averagedMetrics.map(m => m.metrics.psnr),
+        data: this.averagedMetrics.map(m => m.metrics.psnr),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -292,7 +312,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'SSIM (Avg)',
-        data: averagedMetrics.map(m => m.metrics.ssim),
+        data: this.averagedMetrics.map(m => m.metrics.ssim),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -304,7 +324,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'NIQE (Avg)',
-        data: averagedMetrics.map(m => m.metrics.niqe),
+        data: this.averagedMetrics.map(m => m.metrics.niqe),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -316,7 +336,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'BRISQUE (Avg)',
-        data: averagedMetrics.map(m => m.metrics.brisque),
+        data: this.averagedMetrics.map(m => m.metrics.brisque),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -328,7 +348,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'LOE (Avg)',
-        data: averagedMetrics.map(m => m.metrics.loe),
+        data: this.averagedMetrics.map(m => m.metrics.loe),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -340,7 +360,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'LPIPS (Avg)',
-        data: averagedMetrics.map(m => m.metrics.lpips),
+        data: this.averagedMetrics.map(m => m.metrics.lpips),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -352,7 +372,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'Delta E76 vs Original (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean),
+        data: this.averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -364,7 +384,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'Delta E76 vs Reference (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean),
+        data: this.averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -376,7 +396,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'CIEDE2000 vs Original (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean),
+        data: this.averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -388,7 +408,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'CIEDE2000 vs Reference (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean),
+        data: this.averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -400,7 +420,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'Angular Error vs Original (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean),
+        data: this.averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -412,7 +432,7 @@ export class MetricsComponent implements OnInit {
       labels: models,
       datasets: [{
         label: 'Angular Error vs Reference (Avg Mean)',
-        data: averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean),
+        data: this.averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean),
         backgroundColor: chartColors,
         borderColor: borderColors,
         borderWidth: 1
@@ -432,7 +452,7 @@ export class MetricsComponent implements OnInit {
     // ============================================
     // 1️⃣ Area Chart - Higher is Better (PSNR & SSIM)
     // ============================================
-    const areaDatasets = averagedMetrics.map((am, index) => {
+    const areaDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.3');
@@ -459,13 +479,13 @@ export class MetricsComponent implements OnInit {
     // 2️⃣ Radar Chart - Image Quality (4 metrics)
     // ============================================
     const minValuesQuality = {
-      niqe: Math.min(...averagedMetrics.map(m => m.metrics.niqe)),
-      brisque: Math.min(...averagedMetrics.map(m => m.metrics.brisque)),
-      loe: Math.min(...averagedMetrics.map(m => m.metrics.loe)),
-      lpips: Math.min(...averagedMetrics.map(m => m.metrics.lpips))
+      niqe: Math.min(...this.averagedMetrics.map(m => m.metrics.niqe)),
+      brisque: Math.min(...this.averagedMetrics.map(m => m.metrics.brisque)),
+      loe: Math.min(...this.averagedMetrics.map(m => m.metrics.loe)),
+      lpips: Math.min(...this.averagedMetrics.map(m => m.metrics.lpips))
     };
 
-    const radarQualityDatasets = averagedMetrics.map((am, index) => {
+    const radarQualityDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
@@ -493,12 +513,12 @@ export class MetricsComponent implements OnInit {
     // 3️⃣ Radar Chart - Color Accuracy (vs Original)
     // ============================================
     const minValuesColorOriginal = {
-      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
-      ciede2000: Math.min(...averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean)),
-      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
+      deltaE: Math.min(...this.averagedMetrics.map(m => m.metrics.delta_e76_vs_original.mean)),
+      ciede2000: Math.min(...this.averagedMetrics.map(m => m.metrics.ciede2000_vs_original.mean)),
+      angularError: Math.min(...this.averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
     };
 
-    const radarColorOriginalDatasets = averagedMetrics.map((am, index) => {
+    const radarColorOriginalDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
@@ -525,12 +545,12 @@ export class MetricsComponent implements OnInit {
     // 4️⃣ Radar Chart - Color Accuracy (vs Reference)
     // ============================================
     const minValuesColorReference = {
-      deltaE: Math.min(...averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean)),
-      ciede2000: Math.min(...averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean)),
-      angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean))
+      deltaE: Math.min(...this.averagedMetrics.map(m => m.metrics.delta_e76_vs_reference.mean)),
+      ciede2000: Math.min(...this.averagedMetrics.map(m => m.metrics.ciede2000_vs_reference.mean)),
+      angularError: Math.min(...this.averagedMetrics.map(m => m.metrics.angular_error_vs_reference.mean))
     };
 
-    const radarColorReferenceDatasets = averagedMetrics.map((am, index) => {
+    const radarColorReferenceDatasets = this.averagedMetrics.map((am, index) => {
         const color = baseColors[index % baseColors.length];
         const borderColor = color.replace('0.7', '1');
         const bgColor = color.replace('0.7', '0.2');
