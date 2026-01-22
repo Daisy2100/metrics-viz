@@ -180,22 +180,22 @@
   <!-- Tables Section -->
   <div class="metrics-content" *ngIf="showTable() && !loading && metrics.length > 0">
     <p-card header="Model Comparison Overview (Averaged)" styleClass="metrics-card">
-      <p-table [value]="averagedMetrics" [tableStyle]="{ 'min-width': '50rem' }">
+      <p-table [value]="averagedMetrics" [tableStyle]="{ 'min-width': '50rem' }" sortMode="multiple">
         <ng-template pTemplate="header">
           <tr>
-            <th>Model</th>
-            <th>NIQE (Avg) ↓</th>
-            <th>BRISQUE (Avg) ↓</th>
-            <th>LOE (Avg) ↓</th>
-            <th>PSNR (Avg) ↑</th>
-            <th>SSIM (Avg) ↑</th>
-            <th>LPIPS (Avg) ↓</th>
-            <th>Delta E76 vs Orig (Avg) ↓</th>
-            <th>Delta E76 vs Ref (Avg) ↓</th>
-            <th>CIEDE2000 vs Orig (Avg) ↓</th>
-            <th>CIEDE2000 vs Ref (Avg) ↓</th>
-            <th>Angular Error vs Orig (Avg) ↓</th>
-            <th>Angular Error vs Ref (Avg) ↓</th>
+            <th pSortableColumn="model">Model <p-sortIcon field="model"></p-sortIcon></th>
+            <th pSortableColumn="metrics.niqe">NIQE (Avg) ↓ <p-sortIcon field="metrics.niqe"></p-sortIcon></th>
+            <th pSortableColumn="metrics.brisque">BRISQUE (Avg) ↓ <p-sortIcon field="metrics.brisque"></p-sortIcon></th>
+            <th pSortableColumn="metrics.loe">LOE (Avg) ↓ <p-sortIcon field="metrics.loe"></p-sortIcon></th>
+            <th pSortableColumn="metrics.psnr">PSNR (Avg) ↑ <p-sortIcon field="metrics.psnr"></p-sortIcon></th>
+            <th pSortableColumn="metrics.ssim">SSIM (Avg) ↑ <p-sortIcon field="metrics.ssim"></p-sortIcon></th>
+            <th pSortableColumn="metrics.lpips">LPIPS (Avg) ↓ <p-sortIcon field="metrics.lpips"></p-sortIcon></th>
+            <th pSortableColumn="metrics.delta_e76_vs_original.mean">Delta E76 vs Orig (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_original.mean"></p-sortIcon></th>
+            <th pSortableColumn="metrics.delta_e76_vs_reference.mean">Delta E76 vs Ref (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_reference.mean"></p-sortIcon></th>
+            <th pSortableColumn="metrics.ciede2000_vs_original.mean">CIEDE2000 vs Orig (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_original.mean"></p-sortIcon></th>
+            <th pSortableColumn="metrics.ciede2000_vs_reference.mean">CIEDE2000 vs Ref (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_reference.mean"></p-sortIcon></th>
+            <th pSortableColumn="metrics.angular_error_vs_original.mean">Angular Error vs Orig (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_original.mean"></p-sortIcon></th>
+            <th pSortableColumn="metrics.angular_error_vs_reference.mean">Angular Error vs Ref (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_reference.mean"></p-sortIcon></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-metric>
@@ -213,132 +213,6 @@
             <td>{{ metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4' }}</td>
             <td>{{ metric.metrics.angular_error_vs_original.mean | number:'1.4-4' }}</td>
             <td>{{ metric.metrics.angular_error_vs_reference.mean | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="Delta E76 vs Original" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_original.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_original.max | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="CIEDE2000 vs Original" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_original.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_original.max | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="Angular Error vs Original" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.angular_error_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_original.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_original.max | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="Delta E76 vs Reference" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_reference.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_reference.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_reference.max | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="CIEDE2000 vs Reference" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_reference.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_reference.max | number:'1.4-4' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-
-    <p-card header="Angular Error vs Reference" styleClass="metrics-card">
-      <p-table [value]="metrics" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Model</th>
-            <th>Mean</th>
-            <th>Std</th>
-            <th>Max</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-metric>
-          <tr>
-            <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.angular_error_vs_reference.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_reference.std | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_reference.max | number:'1.4-4' }}</td>
           </tr>
         </ng-template>
       </p-table>
