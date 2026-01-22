@@ -1,0 +1,38 @@
+[
+  {
+    "dataset": "test",
+    "filename": "test_1.png",
+    "image_name": "1",
+    "model": "Zero_DCE++",
+    "image_path": "assets/data/test/test_1.png",
+    "metrics": {
+      "niqe": 3.9681,
+      "brisque": 17.1946,
+      "loe": 633.5845
+    }
+  },
+  {
+    "dataset": "test",
+    "filename": "test_2.png",
+    "image_name": "2",
+    "model": "Zero_DCE++",
+    "image_path": "assets/data/test/test_2.png",
+    "metrics": {
+      "niqe": 4.5,
+      "brisque": 18.2,
+      "loe": 650.0
+    }
+  },
+  {
+    "dataset": "test",
+    "filename": "test_1.png",
+    "image_name": "1",
+    "model": "TestModel",
+    "image_path": "assets/data/test2/test_1.png",
+    "metrics": {
+      "niqe": 3.2,
+      "brisque": 15.5,
+      "loe": 620.0
+    }
+  }
+]

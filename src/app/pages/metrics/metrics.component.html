@@ -48,7 +48,7 @@
   <div class="metrics-charts" *ngIf="showCharts() && !loading && metrics.length > 0">
     
     <!-- 1️⃣ Area Chart - Higher is Better -->
-    <div class="area-chart-container">
+    <div class="area-chart-container" *ngIf="higherBetterAreaChartData">
       <p-card header="📈 Higher is Better Metrics (PSNR & SSIM) ↑" styleClass="metrics-card area-card">
         <p class="chart-description">
           面積越大越好 | Larger area indicates better performance
@@ -60,7 +60,7 @@
     </div>
 
     <!-- 2️⃣ Radar Chart - Image Quality -->
-    <div class="radar-chart-container">
+    <div class="radar-chart-container" *ngIf="radarChartData">
       <p-card header="🖼️ Image Quality Metrics" styleClass="metrics-card radar-card">
         <p class="radar-description">
           🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
@@ -72,7 +72,7 @@
     </div>
 
     <!-- 3️⃣ Radar Chart - Color Accuracy (vs Original) -->
-    <div class="radar-chart-container">
+    <div class="radar-chart-container" *ngIf="radarColorOriginalChartData">
       <p-card header="🎨 Color Accuracy (vs Original)" styleClass="metrics-card radar-card">
         <p class="radar-description">
           🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
@@ -84,7 +84,7 @@
     </div>
 
     <!-- 4️⃣ Radar Chart - Color Accuracy (vs Reference) -->
-    <div class="radar-chart-container">
+    <div class="radar-chart-container" *ngIf="radarColorReferenceChartData">
       <p-card header="🎨 Color Accuracy (vs Reference)" styleClass="metrics-card radar-card">
         <p class="radar-description">
           🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
@@ -99,77 +99,77 @@
     <h3 class="charts-section-title">📊 Individual Metrics Comparison</h3>
     <div class="charts-grid">
       <!-- Higher is Better Metrics -->
-      <p-card header="PSNR (Higher is Better) ↑" styleClass="metrics-card">
+      <p-card *ngIf="psnrChartData" header="PSNR (Higher is Better) ↑" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="psnrChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="SSIM (Higher is Better) ↑" styleClass="metrics-card">
+      <p-card *ngIf="ssimChartData" header="SSIM (Higher is Better) ↑" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="ssimChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
       <!-- Lower is Better Metrics -->
-      <p-card header="NIQE (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="niqeChartData" header="NIQE (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="niqeChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="BRISQUE (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="brisqueChartData" header="BRISQUE (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="brisqueChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="LOE (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="loeChartData" header="LOE (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="loeChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="LPIPS (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="lpipsChartData" header="LPIPS (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="lpipsChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
       <!-- Delta E Metrics -->
-      <p-card header="Delta E76 vs Original (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="deltaE76OriginalChartData" header="Delta E76 vs Original (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="deltaE76OriginalChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="Delta E76 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="deltaE76ReferenceChartData" header="Delta E76 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="deltaE76ReferenceChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
       <!-- CIEDE2000 Metrics -->
-      <p-card header="CIEDE2000 vs Original (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="ciede2000OriginalChartData" header="CIEDE2000 vs Original (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="ciede2000OriginalChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="CIEDE2000 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
+      <p-card *ngIf="ciede2000ReferenceChartData" header="CIEDE2000 vs Reference (Lower is Better) ↓" styleClass="metrics-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="ciede2000ReferenceChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
       <!-- Angular Error Metrics (Critical for HSV method) -->
-      <p-card header="Angular Error vs Original (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
+      <p-card *ngIf="angularErrorOriginalChartData" header="Angular Error vs Original (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="angularErrorOriginalChartData" [options]="chartOptions"></p-chart>
         </div>
       </p-card>
 
-      <p-card header="Angular Error vs Reference (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
+      <p-card *ngIf="angularErrorReferenceChartData" header="Angular Error vs Reference (Lower is Better) ↓ 🔑" styleClass="metrics-card highlight-card">
         <div class="chart-container">
           <p-chart type="bar" [data]="angularErrorReferenceChartData" [options]="chartOptions"></p-chart>
         </div>
@@ -184,35 +184,35 @@
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="model">Model <p-sortIcon field="model"></p-sortIcon></th>
-            <th pSortableColumn="metrics.niqe">NIQE (Avg) ↓ <p-sortIcon field="metrics.niqe"></p-sortIcon></th>
-            <th pSortableColumn="metrics.brisque">BRISQUE (Avg) ↓ <p-sortIcon field="metrics.brisque"></p-sortIcon></th>
-            <th pSortableColumn="metrics.loe">LOE (Avg) ↓ <p-sortIcon field="metrics.loe"></p-sortIcon></th>
-            <th pSortableColumn="metrics.psnr">PSNR (Avg) ↑ <p-sortIcon field="metrics.psnr"></p-sortIcon></th>
-            <th pSortableColumn="metrics.ssim">SSIM (Avg) ↑ <p-sortIcon field="metrics.ssim"></p-sortIcon></th>
-            <th pSortableColumn="metrics.lpips">LPIPS (Avg) ↓ <p-sortIcon field="metrics.lpips"></p-sortIcon></th>
-            <th pSortableColumn="metrics.delta_e76_vs_original.mean">Delta E76 vs Orig (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_original.mean"></p-sortIcon></th>
-            <th pSortableColumn="metrics.delta_e76_vs_reference.mean">Delta E76 vs Ref (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_reference.mean"></p-sortIcon></th>
-            <th pSortableColumn="metrics.ciede2000_vs_original.mean">CIEDE2000 vs Orig (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_original.mean"></p-sortIcon></th>
-            <th pSortableColumn="metrics.ciede2000_vs_reference.mean">CIEDE2000 vs Ref (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_reference.mean"></p-sortIcon></th>
-            <th pSortableColumn="metrics.angular_error_vs_original.mean">Angular Error vs Orig (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_original.mean"></p-sortIcon></th>
-            <th pSortableColumn="metrics.angular_error_vs_reference.mean">Angular Error vs Ref (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_reference.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('niqe')" pSortableColumn="metrics.niqe">NIQE (Avg) ↓ <p-sortIcon field="metrics.niqe"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('brisque')" pSortableColumn="metrics.brisque">BRISQUE (Avg) ↓ <p-sortIcon field="metrics.brisque"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('loe')" pSortableColumn="metrics.loe">LOE (Avg) ↓ <p-sortIcon field="metrics.loe"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('psnr')" pSortableColumn="metrics.psnr">PSNR (Avg) ↑ <p-sortIcon field="metrics.psnr"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('ssim')" pSortableColumn="metrics.ssim">SSIM (Avg) ↑ <p-sortIcon field="metrics.ssim"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('lpips')" pSortableColumn="metrics.lpips">LPIPS (Avg) ↓ <p-sortIcon field="metrics.lpips"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('delta_e76_vs_original')" pSortableColumn="metrics.delta_e76_vs_original.mean">Delta E76 vs Orig (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_original.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('delta_e76_vs_reference')" pSortableColumn="metrics.delta_e76_vs_reference.mean">Delta E76 vs Ref (Avg) ↓ <p-sortIcon field="metrics.delta_e76_vs_reference.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('ciede2000_vs_original')" pSortableColumn="metrics.ciede2000_vs_original.mean">CIEDE2000 vs Orig (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_original.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('ciede2000_vs_reference')" pSortableColumn="metrics.ciede2000_vs_reference.mean">CIEDE2000 vs Ref (Avg) ↓ <p-sortIcon field="metrics.ciede2000_vs_reference.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('angular_error_vs_original')" pSortableColumn="metrics.angular_error_vs_original.mean">Angular Error vs Orig (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_original.mean"></p-sortIcon></th>
+            <th *ngIf="hasMetricColumn('angular_error_vs_reference')" pSortableColumn="metrics.angular_error_vs_reference.mean">Angular Error vs Ref (Avg) ↓ <p-sortIcon field="metrics.angular_error_vs_reference.mean"></p-sortIcon></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-metric>
           <tr>
             <td>{{ metric.model }}</td>
-            <td>{{ metric.metrics.niqe | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.brisque | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.loe | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.psnr | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ssim | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.lpips | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.delta_e76_vs_reference.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_original.mean | number:'1.4-4' }}</td>
-            <td>{{ metric.metrics.angular_error_vs_reference.mean | number:'1.4-4' }}</td>
+            <td *ngIf="hasMetricColumn('niqe')">{{ metric.metrics.niqe !== undefined ? (metric.metrics.niqe | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('brisque')">{{ metric.metrics.brisque !== undefined ? (metric.metrics.brisque | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('loe')">{{ metric.metrics.loe !== undefined ? (metric.metrics.loe | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('psnr')">{{ metric.metrics.psnr !== undefined ? (metric.metrics.psnr | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('ssim')">{{ metric.metrics.ssim !== undefined ? (metric.metrics.ssim | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('lpips')">{{ metric.metrics.lpips !== undefined ? (metric.metrics.lpips | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('delta_e76_vs_original')">{{ metric.metrics.delta_e76_vs_original?.mean !== undefined ? (metric.metrics.delta_e76_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('delta_e76_vs_reference')">{{ metric.metrics.delta_e76_vs_reference?.mean !== undefined ? (metric.metrics.delta_e76_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('ciede2000_vs_original')">{{ metric.metrics.ciede2000_vs_original?.mean !== undefined ? (metric.metrics.ciede2000_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('ciede2000_vs_reference')">{{ metric.metrics.ciede2000_vs_reference?.mean !== undefined ? (metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('angular_error_vs_original')">{{ metric.metrics.angular_error_vs_original?.mean !== undefined ? (metric.metrics.angular_error_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('angular_error_vs_reference')">{{ metric.metrics.angular_error_vs_reference?.mean !== undefined ? (metric.metrics.angular_error_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
           </tr>
         </ng-template>
       </p-table>
