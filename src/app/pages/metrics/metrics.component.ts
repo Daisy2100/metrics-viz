@@ -251,6 +251,12 @@ export class MetricsComponent implements OnInit {
         return values.reduce((a, b) => a + b, 0) / values.length;
       };
 
+      // Helper function to create mean metric object
+      const createMeanMetric = (getValue: (m: ImageMetric) => number | undefined): { mean: number } | undefined => {
+        const avg = safeAverage(getValue);
+        return avg !== undefined ? { mean: avg } : undefined;
+      };
+
       return {
         model,
         metrics: {
@@ -260,30 +266,12 @@ export class MetricsComponent implements OnInit {
           brisque: safeAverage(m => m.metrics.brisque),
           loe: safeAverage(m => m.metrics.loe),
           lpips: safeAverage(m => m.metrics.lpips),
-          delta_e76_vs_original: (() => {
-            const avg = safeAverage(m => m.metrics.delta_e76_vs_original?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })(),
-          delta_e76_vs_reference: (() => {
-            const avg = safeAverage(m => m.metrics.delta_e76_vs_reference?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })(),
-          ciede2000_vs_original: (() => {
-            const avg = safeAverage(m => m.metrics.ciede2000_vs_original?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })(),
-          ciede2000_vs_reference: (() => {
-            const avg = safeAverage(m => m.metrics.ciede2000_vs_reference?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })(),
-          angular_error_vs_original: (() => {
-            const avg = safeAverage(m => m.metrics.angular_error_vs_original?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })(),
-          angular_error_vs_reference: (() => {
-            const avg = safeAverage(m => m.metrics.angular_error_vs_reference?.mean);
-            return avg !== undefined ? { mean: avg } : undefined;
-          })()
+          delta_e76_vs_original: createMeanMetric(m => m.metrics.delta_e76_vs_original?.mean),
+          delta_e76_vs_reference: createMeanMetric(m => m.metrics.delta_e76_vs_reference?.mean),
+          ciede2000_vs_original: createMeanMetric(m => m.metrics.ciede2000_vs_original?.mean),
+          ciede2000_vs_reference: createMeanMetric(m => m.metrics.ciede2000_vs_reference?.mean),
+          angular_error_vs_original: createMeanMetric(m => m.metrics.angular_error_vs_original?.mean),
+          angular_error_vs_reference: createMeanMetric(m => m.metrics.angular_error_vs_reference?.mean)
         }
       };
     });
@@ -617,7 +605,6 @@ export class MetricsComponent implements OnInit {
       };
     } else {
       this.radarChartData = null;
-
     }
 
     // ============================================
@@ -761,6 +748,21 @@ export class MetricsComponent implements OnInit {
       return val !== undefined && val !== null && 
         (typeof val === 'number' ? !isNaN(val) : !isNaN(val.mean));
     });
+  }
+
+  /**
+   * Format metric value for display in the table
+   * @param value The metric value (number or object with mean property)
+   * @returns Formatted string or 'N/A' if value is undefined
+   */
+  formatMetricValue(value: number | { mean: number } | undefined): string {
+    if (value === undefined || value === null) return 'N/A';
+    
+    const numValue = typeof value === 'number' ? value : value.mean;
+    
+    if (isNaN(numValue)) return 'N/A';
+    
+    return numValue.toFixed(4);
   }
 
   /**

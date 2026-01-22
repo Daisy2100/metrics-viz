@@ -201,18 +201,18 @@
         <ng-template pTemplate="body" let-metric>
           <tr>
             <td>{{ metric.model }}</td>
-            <td *ngIf="hasMetricColumn('niqe')">{{ metric.metrics.niqe !== undefined ? (metric.metrics.niqe | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('brisque')">{{ metric.metrics.brisque !== undefined ? (metric.metrics.brisque | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('loe')">{{ metric.metrics.loe !== undefined ? (metric.metrics.loe | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('psnr')">{{ metric.metrics.psnr !== undefined ? (metric.metrics.psnr | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('ssim')">{{ metric.metrics.ssim !== undefined ? (metric.metrics.ssim | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('lpips')">{{ metric.metrics.lpips !== undefined ? (metric.metrics.lpips | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('delta_e76_vs_original')">{{ metric.metrics.delta_e76_vs_original?.mean !== undefined ? (metric.metrics.delta_e76_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('delta_e76_vs_reference')">{{ metric.metrics.delta_e76_vs_reference?.mean !== undefined ? (metric.metrics.delta_e76_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('ciede2000_vs_original')">{{ metric.metrics.ciede2000_vs_original?.mean !== undefined ? (metric.metrics.ciede2000_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('ciede2000_vs_reference')">{{ metric.metrics.ciede2000_vs_reference?.mean !== undefined ? (metric.metrics.ciede2000_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('angular_error_vs_original')">{{ metric.metrics.angular_error_vs_original?.mean !== undefined ? (metric.metrics.angular_error_vs_original.mean | number:'1.4-4') : 'N/A' }}</td>
-            <td *ngIf="hasMetricColumn('angular_error_vs_reference')">{{ metric.metrics.angular_error_vs_reference?.mean !== undefined ? (metric.metrics.angular_error_vs_reference.mean | number:'1.4-4') : 'N/A' }}</td>
+            <td *ngIf="hasMetricColumn('niqe')">{{ formatMetricValue(metric.metrics.niqe) }}</td>
+            <td *ngIf="hasMetricColumn('brisque')">{{ formatMetricValue(metric.metrics.brisque) }}</td>
+            <td *ngIf="hasMetricColumn('loe')">{{ formatMetricValue(metric.metrics.loe) }}</td>
+            <td *ngIf="hasMetricColumn('psnr')">{{ formatMetricValue(metric.metrics.psnr) }}</td>
+            <td *ngIf="hasMetricColumn('ssim')">{{ formatMetricValue(metric.metrics.ssim) }}</td>
+            <td *ngIf="hasMetricColumn('lpips')">{{ formatMetricValue(metric.metrics.lpips) }}</td>
+            <td *ngIf="hasMetricColumn('delta_e76_vs_original')">{{ formatMetricValue(metric.metrics.delta_e76_vs_original) }}</td>
+            <td *ngIf="hasMetricColumn('delta_e76_vs_reference')">{{ formatMetricValue(metric.metrics.delta_e76_vs_reference) }}</td>
+            <td *ngIf="hasMetricColumn('ciede2000_vs_original')">{{ formatMetricValue(metric.metrics.ciede2000_vs_original) }}</td>
+            <td *ngIf="hasMetricColumn('ciede2000_vs_reference')">{{ formatMetricValue(metric.metrics.ciede2000_vs_reference) }}</td>
+            <td *ngIf="hasMetricColumn('angular_error_vs_original')">{{ formatMetricValue(metric.metrics.angular_error_vs_original) }}</td>
+            <td *ngIf="hasMetricColumn('angular_error_vs_reference')">{{ formatMetricValue(metric.metrics.angular_error_vs_reference) }}</td>
           </tr>
         </ng-template>
       </p-table>
