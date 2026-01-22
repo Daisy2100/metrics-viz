@@ -46,11 +46,12 @@
 
   <!-- Charts Section -->
   <div class="metrics-charts" *ngIf="showCharts() && !loading && metrics.length > 0">
-    <!-- Area Chart for Higher is Better Metrics -->
+    
+    <!-- 1️⃣ Area Chart - Higher is Better -->
     <div class="area-chart-container">
-      <p-card header="Higher is Better Metrics (PSNR & SSIM) ↑" styleClass="metrics-card area-card">
+      <p-card header="📈 Higher is Better Metrics (PSNR & SSIM) ↑" styleClass="metrics-card area-card">
         <p class="chart-description">
-          📈 面積越大越好 | Larger area indicates better performance
+          面積越大越好 | Larger area indicates better performance
         </p>
         <div class="chart-container area-chart">
           <p-chart type="line" [data]="higherBetterAreaChartData" [options]="higherBetterAreaChartOptions"></p-chart>
@@ -58,14 +59,38 @@
       </p-card>
     </div>
 
-    <!-- Radar Chart for Lower is Better Metrics -->
+    <!-- 2️⃣ Radar Chart - Image Quality -->
     <div class="radar-chart-container">
-      <p-card header="Lower is Better Metrics (Quality & Color) ↓" styleClass="metrics-card radar-card">
+      <p-card header="🖼️ Image Quality Metrics" styleClass="metrics-card radar-card">
         <p class="radar-description">
           🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
         </p>
         <div class="chart-container radar-chart">
           <p-chart type="radar" [data]="radarChartData" [options]="radarChartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- 3️⃣ Radar Chart - Color Accuracy (vs Original) -->
+    <div class="radar-chart-container">
+      <p-card header="🎨 Color Accuracy (vs Original)" styleClass="metrics-card radar-card">
+        <p class="radar-description">
+          🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
+        </p>
+        <div class="chart-container radar-chart">
+          <p-chart type="radar" [data]="radarColorOriginalChartData" [options]="radarChartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- 4️⃣ Radar Chart - Color Accuracy (vs Reference) -->
+    <div class="radar-chart-container">
+      <p-card header="🎨 Color Accuracy (vs Reference)" styleClass="metrics-card radar-card">
+        <p class="radar-description">
+          🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
+        </p>
+        <div class="chart-container radar-chart">
+          <p-chart type="radar" [data]="radarColorReferenceChartData" [options]="radarChartOptions"></p-chart>
         </div>
       </p-card>
     </div>
