@@ -164,6 +164,16 @@ ng build --configuration production
      - 上傳建構產物
      - 部署到 GitHub Pages
 
+### SPA 路由支援
+
+此專案已設定 SPA (Single Page Application) 路由支援，透過以下機制解決 GitHub Pages 的路由問題：
+
+1. **404.html 重定向**：當訪問不存在的路徑時（如 `/metrics`），GitHub Pages 會顯示 `404.html`
+2. **自動恢復路由**：`404.html` 會將路徑資訊編碼到 query string 並重定向到根路徑
+3. **路徑還原**：`index.html` 中的腳本會讀取 query string 並還原原始路徑
+
+這樣即使直接訪問 `https://daisy2100.com/metrics` 也能正常運作，不會出現 404 錯誤。
+
 ### 手動觸發部署
 
 如果需要手動觸發部署，可以：
