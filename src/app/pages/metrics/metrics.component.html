@@ -46,11 +46,23 @@
 
   <!-- Charts Section -->
   <div class="metrics-charts" *ngIf="showCharts() && !loading && metrics.length > 0">
-    <!-- Radar Chart for Overall Comparison -->
+    <!-- Area Chart for Higher is Better Metrics -->
+    <div class="area-chart-container">
+      <p-card header="Higher is Better Metrics (PSNR & SSIM) ↑" styleClass="metrics-card area-card">
+        <p class="chart-description">
+          📈 面積越大越好 | Larger area indicates better performance
+        </p>
+        <div class="chart-container area-chart">
+          <p-chart type="line" [data]="higherBetterAreaChartData" [options]="higherBetterAreaChartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Radar Chart for Lower is Better Metrics -->
     <div class="radar-chart-container">
-      <p-card header="Overall Capability Comparison (Radar)" styleClass="metrics-card radar-card">
+      <p-card header="Lower is Better Metrics (Quality & Color) ↓" styleClass="metrics-card radar-card">
         <p class="radar-description">
-          🟢 越接近外圈越好 | ↑ Higher is Better, ↓ Lower is Better (已轉換為能力分數)
+          🟢 越接近外圈越好 | Closer to outer ring is better (已轉換為能力分數)
         </p>
         <div class="chart-container radar-chart">
           <p-chart type="radar" [data]="radarChartData" [options]="radarChartOptions"></p-chart>

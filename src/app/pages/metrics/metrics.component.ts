@@ -61,8 +61,10 @@ export class MetricsComponent implements OnInit {
   angularErrorOriginalChartData: any;
   angularErrorReferenceChartData: any;
   radarChartData: any;
+  higherBetterAreaChartData: any;
   chartOptions: any;
   radarChartOptions: any;
+  higherBetterAreaChartOptions: any;
 
   constructor(
     private metricsService: MetricsService,
@@ -159,6 +161,24 @@ export class MetricsComponent implements OnInit {
         }
       }
     };
+
+    this.higherBetterAreaChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top' as const,
+        },
+        title: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    };
   }
 
   prepareChartData(): void {
@@ -177,6 +197,7 @@ export class MetricsComponent implements OnInit {
         this.angularErrorOriginalChartData = null;
         this.angularErrorReferenceChartData = null;
         this.radarChartData = null;
+        this.higherBetterAreaChartData = null;
         return;
     }
 
@@ -394,14 +415,7 @@ export class MetricsComponent implements OnInit {
       }]
     };
 
-    // Radar Chart - Overall Capability Comparison (Dynamic)
-    // Find absolute max/min across all averaged models for normalization
-    const maxValues = {
-      psnr: Math.max(...averagedMetrics.map(m => m.metrics.psnr)),
-      ssim: 1, // SSIM is always max 1
-    };
-
-    // For lower is better, we generally need the Min value (best performance)
+    // Radar Chart - Lower is Better Metrics Only (6 metrics)
     const minValues = {
       niqe: Math.min(...averagedMetrics.map(m => m.metrics.niqe)),
       brisque: Math.min(...averagedMetrics.map(m => m.metrics.brisque)),
@@ -411,20 +425,10 @@ export class MetricsComponent implements OnInit {
       angularError: Math.min(...averagedMetrics.map(m => m.metrics.angular_error_vs_original.mean))
     };
 
-    // Helper for Higher is Better: val / max
-    const normalizeHigherBetter = (val: number, max: number) => {
-        if (max <= 0) return 0;
-        return val / max;
-    };
-
-    // Helper for Lower is Better: min / val (Efficiency relative to best observed)
-    // If Val is 0 (perfect), Score is 1. IF Val > 0, Score = Min / Val.
-    // This ensures that the best model (== Min) always gets 1.0 (Full Radar).
-    // And worse models get < 1.0.
+    // Helper for Lower is Better: min / val
     const normalizeLowerBetter = (val: number, min: number) => {
         if (val <= 0) return 1; // 0 error is perfect score
-        if (min === 0) return 0; // If best is 0, and current is > 0, score is 0 relative to perfection?
-                                 // Or we can treat it differently. Usually errors aren't exactly 0.
+        if (min === 0) return 0;
         return min / val;
     };
 
@@ -436,8 +440,6 @@ export class MetricsComponent implements OnInit {
         return {
             label: am.model,
             data: [
-                normalizeHigherBetter(am.metrics.psnr, maxValues.psnr),
-                normalizeHigherBetter(am.metrics.ssim, maxValues.ssim),
                 normalizeLowerBetter(am.metrics.niqe, minValues.niqe),
                 normalizeLowerBetter(am.metrics.brisque, minValues.brisque),
                 normalizeLowerBetter(am.metrics.loe, minValues.loe),
@@ -452,8 +454,32 @@ export class MetricsComponent implements OnInit {
     });
 
     this.radarChartData = {
-      labels: ['PSNR ↑', 'SSIM ↑', 'NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓', 'Delta E ↓', 'Angular Error ↓'],
+      labels: ['NIQE ↓', 'BRISQUE ↓', 'LOE ↓', 'LPIPS ↓', 'Delta E ↓', 'Angular Error ↓'],
       datasets: radarDatasets
+    };
+
+    // Area Chart - Higher is Better Metrics (PSNR & SSIM)
+    const areaDatasets = averagedMetrics.map((am, index) => {
+        const color = baseColors[index % baseColors.length];
+        const borderColor = color.replace('0.7', '1');
+        const bgColor = color.replace('0.7', '0.3');
+
+        return {
+            label: am.model,
+            data: [am.metrics.psnr, am.metrics.ssim],
+            borderColor: borderColor,
+            backgroundColor: bgColor,
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        };
+    });
+
+    this.higherBetterAreaChartData = {
+      labels: ['PSNR', 'SSIM'],
+      datasets: areaDatasets
     };
   }
 
@@ -503,7 +529,8 @@ export class MetricsComponent implements OnInit {
     // Get all chart canvas elements
     const charts = document.querySelectorAll('p-chart canvas');
     const chartNames = [
-      'radar-overall-comparison',
+      'area-higher-is-better',
+      'radar-lower-is-better',
       'psnr-comparison',
       'ssim-comparison',
       'niqe-comparison',
