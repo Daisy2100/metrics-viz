@@ -160,9 +160,26 @@ ng build --configuration production
 
 3. **自動部署**：
    - 當推送到 `main` 分支時，GitHub Actions 會自動：
-     - 建構 Angular 應用程式
+     - 建構 Angular 應用程式（`base-href` 設為 `/metrics-viz/`）
      - 上傳建構產物
      - 部署到 GitHub Pages
+
+### 部署位置
+
+- **GitHub Pages URL**: https://daisy2100.github.io/metrics-viz/
+- **自訂網域**: https://daisy2100.com (透過 CNAME 設定)
+
+應用程式部署到 `/metrics-viz/` 子目錄，因此 `base-href` 設定為 `/metrics-viz/` 以確保靜態資源（CSS、JS 檔案）能正確載入。
+
+### SPA 路由支援
+
+此專案已設定 SPA (Single Page Application) 路由支援，透過以下機制解決 GitHub Pages 的路由問題：
+
+1. **404.html 重定向**：當訪問不存在的路徑時（如 `/metrics-viz/metrics`），GitHub Pages 會顯示 `404.html`
+2. **自動恢復路由**：`404.html` 會將路徑資訊編碼到 query string 並重定向到 `/metrics-viz/?/metrics`
+3. **路徑還原**：`index.html` 中的腳本會讀取 query string 並還原原始路徑為 `/metrics-viz/metrics`
+
+這樣即使直接訪問 `https://daisy2100.github.io/metrics-viz/metrics` 或 `https://daisy2100.com/metrics` 也能正常運作，不會出現 404 錯誤。
 
 ### 手動觸發部署
 

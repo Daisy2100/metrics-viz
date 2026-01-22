@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular
-        run: npm run build -- --configuration production --base-href /
+        run: npm run build -- --configuration production --base-href /metrics-viz/
 
       - name: Locate Build Output
         id: setup_cname
