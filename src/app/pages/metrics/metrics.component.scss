@@ -63,6 +63,26 @@ padding-top: 120px;
 .metrics-charts {
   margin-bottom: 2rem;
 
+  .area-chart-container {
+    margin-bottom: 2rem;
+
+    .area-card {
+      max-width: 800px;
+      margin: 0 auto;
+
+      .chart-description {
+        text-align: center;
+        color: $color-gray-600;
+        margin-bottom: 1rem;
+        font-size: $font-size-sm;
+      }
+
+      .area-chart {
+        height: 400px;
+      }
+    }
+  }
+
   .radar-chart-container {
     margin-bottom: 2rem;
 
