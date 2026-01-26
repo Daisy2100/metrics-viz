@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# YOLO 模型權重
+*.pt
+*.pth
+*.weights
+
+# 資料目錄 (不提交大型資料集)
+../../data/bdd100k_exp/images/
+../../data/bdd100k_exp/labels/
+
+# 輸出結果 (不提交評測結果)
+../../output/bdd100k_exp/*/
+../../visualizations/
+
+# YOLO 執行產生的檔案
+runs/
+yolov*/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日誌
+*.log
+
+# 臨時檔案
+tmp/
+temp/
+*.tmp
