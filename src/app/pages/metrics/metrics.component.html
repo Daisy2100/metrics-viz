@@ -11,6 +11,7 @@
         chooseLabel="上傳 JSON 數據 / Upload JSON Data"
         chooseIcon="pi pi-upload"
         accept=".json"
+        [multiple]="true"
         maxFileSize="5000000"
         [customUpload]="true"
         (uploadHandler)="onUpload($event)"

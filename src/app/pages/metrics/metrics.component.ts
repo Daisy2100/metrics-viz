@@ -99,27 +99,69 @@ export class MetricsComponent implements OnInit {
   }
 
   onUpload(event: any) {
-    const file = event.files[0];
-    const reader = new FileReader();
+    const files = Array.from(event.files || []) as File[];
+    if (!files || files.length === 0) {
+      return;
+    }
 
-    reader.onload = (e: any) => {
-      try {
-        const json = JSON.parse(e.target.result);
-        if (Array.isArray(json)) {
-            // Append new data instead of replacing
-            this.metrics = [...this.metrics, ...json];
-            this.prepareChartData();
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Data uploaded successfully' });
-        } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid JSON format: Expected an array' });
+    let processedFiles = 0;
+    const allMetrics: ImageMetric[] = [];
+    let hasError = false;
+
+    files.forEach((file: File) => {
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (Array.isArray(json)) {
+            allMetrics.push(...json);
+          } else {
+            hasError = true;
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Error', 
+              detail: `Invalid JSON format in ${file.name}: Expected an array` 
+            });
+          }
+        } catch (error) {
+          hasError = true;
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: `Error parsing ${file.name}` 
+          });
+          console.error('JSON parse error:', error);
+        } finally {
+          processedFiles++;
+          
+          // When all files are processed
+          if (processedFiles === files.length) {
+            if (allMetrics.length > 0) {
+              // Append new data instead of replacing
+              this.metrics = [...this.metrics, ...allMetrics];
+              this.prepareChartData();
+              
+              if (!hasError) {
+                this.messageService.add({ 
+                  severity: 'success', 
+                  summary: 'Success', 
+                  detail: `${files.length} file(s) uploaded successfully` 
+                });
+              } else {
+                this.messageService.add({ 
+                  severity: 'warn', 
+                  summary: 'Partial Success', 
+                  detail: 'Some files were uploaded successfully, but some had errors' 
+                });
+              }
+            }
+          }
         }
-      } catch (error) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error parsing JSON file' });
-        console.error('JSON parse error:', error);
-      }
-    };
+      };
 
-    reader.readAsText(file);
+      reader.readAsText(file);
+    });
   }
 
   clearData(): void {

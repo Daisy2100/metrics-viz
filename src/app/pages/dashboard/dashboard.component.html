@@ -15,7 +15,8 @@
           accept=".json"
           [maxFileSize]="1000000"
           [auto]="true"
-          chooseLabel="Choose JSON File"
+          [multiple]="true"
+          chooseLabel="Choose JSON File(s)"
           (onSelect)="onFileUpload($event)"
           styleClass="w-full"
         ></p-fileUpload>

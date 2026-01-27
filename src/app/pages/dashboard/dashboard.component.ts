@@ -28,22 +28,33 @@ export class DashboardComponent {
   chartOptions: ChartOptions<'bar'> | undefined;
 
   onFileUpload(event: FileSelectEvent): void {
-    const file = event.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        try {
-          const result = e.target?.result;
-          if (typeof result === 'string') {
-            const jsonData = JSON.parse(result);
-            this.metricsData = jsonData.images || [];
-            this.prepareChartData();
+    const files = Array.from(event.files || []);
+    if (files && files.length > 0) {
+      let processedFiles = 0;
+      const allMetricsData: ImageMetric[] = [];
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          try {
+            const result = e.target?.result;
+            if (typeof result === 'string') {
+              const jsonData = JSON.parse(result);
+              const images = jsonData.images || [];
+              allMetricsData.push(...images);
+            }
+          } catch (error) {
+            console.error('Error parsing JSON file:', error);
+          } finally {
+            processedFiles++;
+            if (processedFiles === files.length) {
+              this.metricsData = allMetricsData;
+              this.prepareChartData();
+            }
           }
-        } catch (error) {
-          console.error('Error parsing JSON file:', error);
-        }
-      };
-      reader.readAsText(file);
+        };
+        reader.readAsText(file);
+      });
     }
   }
 
