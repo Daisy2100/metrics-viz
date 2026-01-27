@@ -43,7 +43,7 @@ export class DashboardComponent {
           const allMetricsData: ImageMetric[] = [];
           let hasError = false;
           
-          results.forEach((result, index) => {
+          results.forEach((result) => {
             if (result.success && result.data) {
               allMetricsData.push(...result.data);
             } else {
