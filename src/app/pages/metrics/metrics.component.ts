@@ -104,62 +104,89 @@ export class MetricsComponent implements OnInit {
       return;
     }
 
-    let processedFiles = 0;
-    const allMetrics: ImageMetric[] = [];
-    let hasError = false;
+    const filePromises = files.map(file => this.readFile(file));
+    
+    Promise.all(filePromises)
+      .then(results => {
+        const allMetrics: ImageMetric[] = [];
+        let hasError = false;
+        
+        results.forEach((result) => {
+          if (result.success && result.data) {
+            allMetrics.push(...result.data);
+          } else {
+            hasError = true;
+          }
+        });
+        
+        if (allMetrics.length > 0) {
+          // Append new data instead of replacing
+          this.metrics = [...this.metrics, ...allMetrics];
+          this.prepareChartData();
+          
+          if (!hasError) {
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Success', 
+              detail: `${files.length} file(s) uploaded successfully` 
+            });
+          } else {
+            this.messageService.add({ 
+              severity: 'warn', 
+              summary: 'Partial Success', 
+              detail: 'Some files were uploaded successfully, but some had errors' 
+            });
+          }
+        } else if (hasError) {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to upload files. Please check the file format.' 
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error processing files:', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'An unexpected error occurred while processing files' 
+        });
+      });
+  }
 
-    files.forEach((file: File) => {
+  private readFile(file: File): Promise<{ success: boolean; data?: ImageMetric[]; error?: string }> {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-
+      
       reader.onload = (e: any) => {
         try {
           const json = JSON.parse(e.target.result);
           if (Array.isArray(json)) {
-            allMetrics.push(...json);
+            resolve({ success: true, data: json });
           } else {
-            hasError = true;
             this.messageService.add({ 
               severity: 'error', 
               summary: 'Error', 
               detail: `Invalid JSON format in ${file.name}: Expected an array` 
             });
+            resolve({ success: false, error: 'Invalid format' });
           }
         } catch (error) {
-          hasError = true;
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
             detail: `Error parsing ${file.name}` 
           });
           console.error('JSON parse error:', error);
-        } finally {
-          processedFiles++;
-          
-          // When all files are processed
-          if (processedFiles === files.length) {
-            if (allMetrics.length > 0) {
-              // Append new data instead of replacing
-              this.metrics = [...this.metrics, ...allMetrics];
-              this.prepareChartData();
-              
-              if (!hasError) {
-                this.messageService.add({ 
-                  severity: 'success', 
-                  summary: 'Success', 
-                  detail: `${files.length} file(s) uploaded successfully` 
-                });
-              } else {
-                this.messageService.add({ 
-                  severity: 'warn', 
-                  summary: 'Partial Success', 
-                  detail: 'Some files were uploaded successfully, but some had errors' 
-                });
-              }
-            }
-          }
+          resolve({ success: false, error: (error as Error).message });
         }
       };
-
+      
+      reader.onerror = () => {
+        resolve({ success: false, error: 'Failed to read file' });
+      };
+      
       reader.readAsText(file);
     });
   }

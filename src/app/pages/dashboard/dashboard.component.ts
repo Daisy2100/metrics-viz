@@ -5,6 +5,8 @@ import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { ChartData, ChartOptions } from 'chart.js';
 import { ImageMetric } from '../../models/image-metrics.model';
 
@@ -16,8 +18,10 @@ import { ImageMetric } from '../../models/image-metrics.model';
     ChartModule,
     TableModule,
     CardModule,
-    ButtonModule
+    ButtonModule,
+    ToastModule
   ],
+  providers: [MessageService],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -27,35 +31,88 @@ export class DashboardComponent {
   deltaEChartData: ChartData<'bar'> | undefined;
   chartOptions: ChartOptions<'bar'> | undefined;
 
+  constructor(private messageService: MessageService) {}
+
   onFileUpload(event: FileSelectEvent): void {
     const files = Array.from(event.files || []);
     if (files && files.length > 0) {
-      let processedFiles = 0;
-      const allMetricsData: ImageMetric[] = [];
-
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-          try {
-            const result = e.target?.result;
-            if (typeof result === 'string') {
-              const jsonData = JSON.parse(result);
-              const images = jsonData.images || [];
-              allMetricsData.push(...images);
+      const filePromises = files.map(file => this.readFile(file));
+      
+      Promise.all(filePromises)
+        .then(results => {
+          const allMetricsData: ImageMetric[] = [];
+          let hasError = false;
+          
+          results.forEach((result, index) => {
+            if (result.success && result.data) {
+              allMetricsData.push(...result.data);
+            } else {
+              hasError = true;
             }
-          } catch (error) {
-            console.error('Error parsing JSON file:', error);
-          } finally {
-            processedFiles++;
-            if (processedFiles === files.length) {
-              this.metricsData = allMetricsData;
-              this.prepareChartData();
+          });
+          
+          if (allMetricsData.length > 0) {
+            this.metricsData = allMetricsData;
+            this.prepareChartData();
+            
+            if (!hasError) {
+              this.messageService.add({ 
+                severity: 'success', 
+                summary: 'Success', 
+                detail: `${files.length} file(s) uploaded successfully` 
+              });
+            } else {
+              this.messageService.add({ 
+                severity: 'warn', 
+                summary: 'Partial Success', 
+                detail: 'Some files were uploaded successfully, but some had errors' 
+              });
             }
+          } else if (hasError) {
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Error', 
+              detail: 'Failed to upload files. Please check the file format.' 
+            });
           }
-        };
-        reader.readAsText(file);
-      });
+        })
+        .catch(error => {
+          console.error('Error processing files:', error);
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'An unexpected error occurred while processing files' 
+          });
+        });
     }
+  }
+
+  private readFile(file: File): Promise<{ success: boolean; data?: ImageMetric[]; error?: string }> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        try {
+          const result = e.target?.result;
+          if (typeof result === 'string') {
+            const jsonData = JSON.parse(result);
+            const images = jsonData.images || [];
+            resolve({ success: true, data: images });
+          } else {
+            resolve({ success: false, error: 'Invalid file content' });
+          }
+        } catch (error) {
+          console.error(`Error parsing JSON file ${file.name}:`, error);
+          resolve({ success: false, error: (error as Error).message });
+        }
+      };
+      
+      reader.onerror = () => {
+        resolve({ success: false, error: 'Failed to read file' });
+      };
+      
+      reader.readAsText(file);
+    });
   }
 
   prepareChartData(): void {
