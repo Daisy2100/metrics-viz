@@ -99,27 +99,96 @@ export class MetricsComponent implements OnInit {
   }
 
   onUpload(event: any) {
-    const file = event.files[0];
-    const reader = new FileReader();
+    const files = Array.from(event.files || []) as File[];
+    if (!files || files.length === 0) {
+      return;
+    }
 
-    reader.onload = (e: any) => {
-      try {
-        const json = JSON.parse(e.target.result);
-        if (Array.isArray(json)) {
-            // Append new data instead of replacing
-            this.metrics = [...this.metrics, ...json];
-            this.prepareChartData();
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Data uploaded successfully' });
-        } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid JSON format: Expected an array' });
+    const filePromises = files.map(file => this.readFile(file));
+    
+    Promise.all(filePromises)
+      .then(results => {
+        const allMetrics: ImageMetric[] = [];
+        let hasError = false;
+        
+        results.forEach((result) => {
+          if (result.success && result.data) {
+            allMetrics.push(...result.data);
+          } else {
+            hasError = true;
+          }
+        });
+        
+        if (allMetrics.length > 0) {
+          // Append new data instead of replacing
+          this.metrics = [...this.metrics, ...allMetrics];
+          this.prepareChartData();
+          
+          if (!hasError) {
+            this.messageService.add({ 
+              severity: 'success', 
+              summary: 'Success', 
+              detail: `${files.length} file(s) uploaded successfully` 
+            });
+          } else {
+            this.messageService.add({ 
+              severity: 'warn', 
+              summary: 'Partial Success', 
+              detail: 'Some files were uploaded successfully, but some had errors' 
+            });
+          }
+        } else if (hasError) {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to upload files. Please check the file format.' 
+          });
         }
-      } catch (error) {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error parsing JSON file' });
-        console.error('JSON parse error:', error);
-      }
-    };
+      })
+      .catch(error => {
+        console.error('Error processing files:', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'An unexpected error occurred while processing files' 
+        });
+      });
+  }
 
-    reader.readAsText(file);
+  private readFile(file: File): Promise<{ success: boolean; data?: ImageMetric[]; error?: string }> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (Array.isArray(json)) {
+            resolve({ success: true, data: json });
+          } else {
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Error', 
+              detail: `Invalid JSON format in ${file.name}: Expected an array` 
+            });
+            resolve({ success: false, error: 'Invalid format' });
+          }
+        } catch (error) {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: `Error parsing ${file.name}` 
+          });
+          console.error('JSON parse error:', error);
+          resolve({ success: false, error: (error as Error).message });
+        }
+      };
+      
+      reader.onerror = () => {
+        resolve({ success: false, error: 'Failed to read file' });
+      };
+      
+      reader.readAsText(file);
+    });
   }
 
   clearData(): void {

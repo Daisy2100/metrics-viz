@@ -1,4 +1,5 @@
 <div class="min-h-screen bg-gray-50 p-4 md:p-8">
+  <p-toast></p-toast>
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <div class="mb-8">
@@ -15,7 +16,8 @@
           accept=".json"
           [maxFileSize]="1000000"
           [auto]="true"
-          chooseLabel="Choose JSON File"
+          [multiple]="true"
+          chooseLabel="Choose JSON File(s)"
           (onSelect)="onFileUpload($event)"
           styleClass="w-full"
         ></p-fileUpload>
