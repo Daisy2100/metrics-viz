@@ -40,3 +40,24 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Object Detection Module
+# Python
+object_detection/**/__pycache__/
+object_detection/**/*.py[cod]
+object_detection/**/*.so
+
+# YOLO models and cache
+*.pt
+*.pth
+*.weights
+
+# Data and output directories (large files)
+data/bdd100k_exp/images/
+data/bdd100k_exp/labels/
+output/bdd100k_exp/*
+!output/bdd100k_exp/README.md
+visualizations/
+
+# YOLO runs
+runs/
